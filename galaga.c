@@ -17,7 +17,7 @@
     } \
 
 enum {COLOR_RED, COLOR_GREEN, COLOR_BLUE, COLOR_ORANGE, COLOR_GREY,
-      COLOR_BLACK, COLOR_SIZE};
+      COLOR_WHITE, COLOR_BLACK, COLOR_SIZE};
 
 enum {UPDATE_MAIN};
 
@@ -36,6 +36,7 @@ setColor(SDL_Renderer *renderer, uint8_t color)
 {
     const SDL_Color colors[] = {
         [COLOR_RED] = {.r = 217, .g = 100, .b = 89, .a = 255},
+        [COLOR_WHITE] = {.r = 255, .g = 255, .b = 255, .a = 255},
         [COLOR_GREEN] = {.r = 88, .g = 140, .b = 126, .a = 255},
         [COLOR_BLUE] = {.r = 146, .g = 161, .b = 185, .a = 255},
         [COLOR_ORANGE] = {.r = 242, .g = 174, .b = 114, .a = 255},
@@ -87,25 +88,29 @@ drawNoiseCircle(SDL_Renderer *renderer, SDL_Point center,
 }
 
 void
-drawExplosion(Game *game)
+drawExplosion(Game *game, uint64_t frame)
 {
+    static uint8_t i = 0;
     SDL_Point center = {.x = 400, .y = 400};
 
-    uint8_t gap = 3;
-    uint8_t start = 4;
+    if (i >= 40) return;
 
-    for (uint8_t i = gap * start; i < 50; i += gap) {
-        setColor(game->renderer , i % 2 ? COLOR_GREEN : COLOR_RED);
-        drawNoiseCircle(game->renderer, center, 2, i, 4);
-        
+    uint8_t gap = 3;
+
+    setColor(game->renderer , i % 2 ? COLOR_WHITE : COLOR_RED);
+
+    for (uint8_t j = 0; j < i; ++j) {
+        drawNoiseCircle(game->renderer, center, 2, j, 4);
     }
+
+    i++;
 
 }
 
 static uint8_t
 updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
 {
-    drawExplosion(game);
+    drawExplosion(game, frame);
     return UPDATE_MAIN;
 }
 
