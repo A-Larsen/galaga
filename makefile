@@ -1,4 +1,4 @@
-LIBS = -lSDL2 -lSDL2_ttf -lm
+LIBS = -lSDL2 -lSDL2_image -lSDL2_ttf -lm
 
 PROG = galaga
 

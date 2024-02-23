@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_image.h>
 #include <assert.h>
 #include <stdbool.h>
 
@@ -198,8 +199,13 @@ enemieAttackPattern(uint8_t type, uint8_t enter, SDL_Point *point)
 void
 enemyMove(FPoint *point, float radians)
 {
+    /* static float i = 0; */
+    float angle = 6;
     point->x += sinf(radians);
     point->y += cosf(radians);
+    /* point->y = -powf(1.5, point->x / 10 - angle) + 500; */
+    /* i += .01f; */
+    /* point->y = pow(2, point->x - 5) * .01f; */
 }
 
 static uint8_t
@@ -208,8 +214,10 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
     /* drawExplosion(game->renderer, frame); */
 
     static FPoint bee_pos = {
-        .x = (float)SCREEN_WIDTH_PX / 2.0f,
-        .y = (float)SCREEN_HEIGHT_PX / 2.0f,
+        /* .x = (float)SCREEN_WIDTH_PX / 2.0f, */
+        /* .y = (float)SCREEN_HEIGHT_PX / 2.0f, */
+        .x = -50,
+        .y = (float)SCREEN_HEIGHT_PX - BEE_HEIGHT_PX - 10,
     };
 
     static SDL_Point fighter_pos = {
@@ -217,13 +225,17 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
         .y = SCREEN_HEIGHT_PX - FIGHTER_HEIGHT_PX - 10
     };
 
+    /* uint16_t degrees = 90; */
+    static float radians = (float)90 / (180.0f / M_PI);
     if (frame % 10 == 0) {
-        uint16_t degrees = 45;
-        float radians = (float)degrees / (180.0f / M_PI);
         enemyMove(&bee_pos, radians);
+        if (radians < (M_PI / 2) + ((float)90 / (180.0f / M_PI))) {
+            radians += .003f;
+        }
+        /* bee_pos.y -= .3f; */
     }
 
-    drawFighter(game->renderer, fighter_pos);
+    /* drawFighter(game->renderer, fighter_pos); */
 
     drawBee(game->renderer, bee_pos);
 
@@ -240,6 +252,9 @@ Game_Init(Game *game)
         SDL_GetError());
 
     END(TTF_Init() != 0, "Could not initialize TTF", TTF_GetError());
+
+    END(IMG_Init(IMG_INIT_PNG) != IMG_INIT_PNG, "Could not initialize PNG",
+                 TTF_GetError());
 
     game->window = SDL_CreateWindow("galaga", SDL_WINDOWPOS_UNDEFINED, 
                      SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH_PX, 
@@ -322,6 +337,7 @@ Game_Quit(Game *game)
     SDL_DestroyWindow(game->window);
     SDL_DestroyRenderer(game->renderer);
     TTF_Quit();
+    IMG_Quit();
     SDL_Quit();
 }
 
