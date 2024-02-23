@@ -171,16 +171,11 @@ enemyEntrance(uint8_t type, uint64_t frame, FPoint *point)
             static float radians = deg90;
             if (frame % 4 == 0) {
                 enemyMove(point, radians);
-                /* static bool end = false; */
                 if (radians < (M_PI / 2) + deg90) {
                     radians += .003f;
                 } else{
                     radians += .016f;
-                    if (radians >= (2.5 * M_PI) + deg90) {
-                        // this is where the enemy would be added to formation
-                        /* end = true; */
-                        return false;
-                    }
+                    if (radians >= (2.5 * M_PI) + deg90) return false;
                 }
             }
 
