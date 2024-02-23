@@ -277,10 +277,10 @@ Game_Update(Game *game, const uint32_t fps)
             case UPDATE_MAIN: update = updateMain; break;
         }
 
-        /* setColor(game->renderer, COLOR_GREY); */
-        /* SDL_RenderClear(game->renderer); */
-        /* setColor(game->renderer, COLOR_BLACK); */
-        /* SDL_RenderFillRect(game->renderer, &background_rect); */
+        setColor(game->renderer, COLOR_GREY);
+        SDL_RenderClear(game->renderer);
+        setColor(game->renderer, COLOR_BLACK);
+        SDL_RenderFillRect(game->renderer, &background_rect);
 
         SDL_Event event;
         SDL_KeyCode key = 0;
