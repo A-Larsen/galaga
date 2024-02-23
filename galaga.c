@@ -6,8 +6,12 @@
 #include <stdbool.h>
 
 #define TAU ((float)(M_PI * 2.0f))
-#define SCREEN_WIDTH_PX 1200U
+#define SCREEN_WIDTH_PX 1000U
 #define SCREEN_HEIGHT_PX 800U
+#define FIGHTER_WIDTH_PX 45
+#define FIGHTER_HEIGHT_PX 58
+#define BEE_WIDTH_PX 40
+#define BEE_HEIGHT_PX 40
 
 #define END(check, str1, str2) \
     if (check) { \
@@ -49,18 +53,47 @@ setColor(SDL_Renderer *renderer, uint8_t color)
 }
 
 void
-drawCircle(SDL_Renderer *renderer, SDL_Point center,
-           uint16_t radius, float accuracy)
+drawFighter(SDL_Renderer *renderer, SDL_Point point)
 {
-    for(float i = 0; i <= TAU + accuracy; i += accuracy) {
-        float x = sinf(i);
-        float y = cosf(i);
+    setColor(renderer , COLOR_GREEN);
 
-        if (!(i > 0)) continue;
+    SDL_Rect rect = {
+        .x = point.x,
+        .y = point.y,
+        .w = FIGHTER_WIDTH_PX,
+        .h = FIGHTER_HEIGHT_PX
+    };
 
-        SDL_RenderDrawPoint(renderer, x * radius + center.x,
-                            y * radius + center.y);
-    }
+    SDL_RenderFillRect(renderer, &rect);
+}
+
+void
+drawBee(SDL_Renderer *renderer, SDL_Point point)
+{
+    setColor(renderer , COLOR_BLUE);
+
+    SDL_Rect rect = {
+        .x = point.x,
+        .y = point.y,
+        .w = BEE_WIDTH_PX,
+        .h = BEE_HEIGHT_PX
+    };
+
+    SDL_RenderFillRect(renderer, &rect);
+}
+
+bool
+getCirclePoint(SDL_Point *point, SDL_Point center,
+               uint16_t radius, uint8_t i)
+{
+    float accuracy = .02f;
+
+    point->x = sinf(i * accuracy);
+    point->y = cosf(i * accuracy);
+
+    if (i <= TAU + accuracy) return false;
+
+    return true;
 }
 
 void
@@ -87,30 +120,61 @@ drawNoiseCircle(SDL_Renderer *renderer, SDL_Point center,
     }
 }
 
-void
-drawExplosion(Game *game, uint64_t frame)
+bool
+drawExplosion(SDL_Renderer *renderer, uint64_t frame)
 {
     static uint8_t i = 0;
     SDL_Point center = {.x = 400, .y = 400};
 
-    if (i >= 55) return;
+    if (i >= 55) return false;
 
     uint8_t gap = 3;
 
-    setColor(game->renderer , i % 4 ? COLOR_WHITE : COLOR_RED);
+    setColor(renderer , i % 4 ? COLOR_WHITE : COLOR_RED);
 
     for (uint8_t j = 0; j < i; ++j) {
-        drawNoiseCircle(game->renderer, center, 2, j, 4);
+        drawNoiseCircle(renderer, center, 2, j, 4);
     }
 
     i += 2;
-
+    return true;
 }
 
 static uint8_t
 updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
 {
-    drawExplosion(game, frame);
+    /* drawExplosion(game->renderer, frame); */
+
+    static int i = 0;
+    uint8_t radius = 60;
+
+    static SDL_Point bee_center = {
+        .x = SCREEN_WIDTH_PX / 2,
+        .y = SCREEN_HEIGHT_PX / 2 
+    };
+
+    static SDL_Point bee_pos = {
+        .x = 0,
+        .y = 0 
+    };
+
+    static SDL_Point fighter_pos = {
+        .x = 10,
+        .y = SCREEN_HEIGHT_PX - FIGHTER_HEIGHT_PX - 10
+    };
+
+
+    if (frame % 10 == 0) {
+        bee_pos.x = cosf(-(i * .1f)) * radius + bee_center.x + i;
+        bee_pos.y = sinf(-(i * .1f)) * radius + bee_center.y - i;
+        i++;
+    }
+
+    drawFighter(game->renderer, fighter_pos);
+
+    drawBee(game->renderer, bee_pos);
+
+
     return UPDATE_MAIN;
 }
 
@@ -144,6 +208,7 @@ Game_Update(Game *game, const uint8_t fps)
     bool keydown = false;
     uint8_t update_id = 0;
     Update_callback update;
+    float mspd = (1.0f / (float)fps) * 1000.0f;
 
     SDL_Rect background_rect = {
         .x = 0,
@@ -187,7 +252,6 @@ Game_Update(Game *game, const uint8_t fps)
 
         uint32_t end = SDL_GetTicks();
         uint32_t elapsed_time = end - start;
-        float mspd = (1.0f / (float)fps) * 1000.0f;
 
         if (elapsed_time < mspd) {
             elapsed_time = mspd - elapsed_time;
@@ -212,6 +276,6 @@ int main(void)
 {
     Game game;
     Game_Init(&game);
-    Game_Update(&game, 60);
+    Game_Update(&game, 180);
     Game_Quit(&game);
 }
