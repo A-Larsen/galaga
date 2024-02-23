@@ -34,6 +34,11 @@ typedef struct _Game {
     SDL_Window *window;
 } Game;
 
+typedef struct _FPoint {
+    float x;
+    float y;
+} FPoint;
+
 typedef uint8_t (*Update_callback)(Game *game, uint64_t frame, SDL_KeyCode key,
                                    bool keydown);
 
@@ -70,7 +75,7 @@ drawFighter(SDL_Renderer *renderer, SDL_Point point)
 }
 
 void
-drawBee(SDL_Renderer *renderer, SDL_Point point)
+drawBee(SDL_Renderer *renderer, FPoint point)
 {
     setColor(renderer , COLOR_BLUE);
 
@@ -190,23 +195,21 @@ enemieAttackPattern(uint8_t type, uint8_t enter, SDL_Point *point)
 
 }
 
+void
+enemyMove(FPoint *point, float radians)
+{
+    point->x += sinf(radians);
+    point->y += cosf(radians);
+}
+
 static uint8_t
 updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
 {
     /* drawExplosion(game->renderer, frame); */
 
-    static int i = 0;
-    /* uint8_t radius = 60; */
-
-    static SDL_Point bee_center = {
-        .x = SCREEN_WIDTH_PX / 2,
-        .y = SCREEN_HEIGHT_PX / 2 
-    };
-
-    static SDL_Point bee_pos = {
-        /* .x = SCREEN_WIDTH_PX / 2, */
-        .x = 10,
-        .y = 0,
+    static FPoint bee_pos = {
+        .x = (float)SCREEN_WIDTH_PX / 2.0f,
+        .y = (float)SCREEN_HEIGHT_PX / 2.0f,
     };
 
     static SDL_Point fighter_pos = {
@@ -214,15 +217,10 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
         .y = SCREEN_HEIGHT_PX - FIGHTER_HEIGHT_PX - 10
     };
 
-
     if (frame % 10 == 0) {
-        /* printf("%d\n", i); */
-        /* bee_pos.x = cosf(-(i * .1f)) * radius + bee_center.x + i; */
-        /* bee_pos.y = sinf(-(i * .1f)) * radius + bee_center.y - i; */
-        /* bee_pos.x += i; */
-        /* bee_pos.y += i; */
-        enemieAttackPattern(0, ENTER_LEFT, &bee_pos);
-        i++;
+        uint16_t degrees = 45;
+        float radians = (float)degrees / (180.0f / M_PI);
+        enemyMove(&bee_pos, radians);
     }
 
     drawFighter(game->renderer, fighter_pos);
@@ -279,10 +277,10 @@ Game_Update(Game *game, const uint32_t fps)
             case UPDATE_MAIN: update = updateMain; break;
         }
 
-        setColor(game->renderer, COLOR_GREY);
-        SDL_RenderClear(game->renderer);
-        setColor(game->renderer, COLOR_BLACK);
-        SDL_RenderFillRect(game->renderer, &background_rect);
+        /* setColor(game->renderer, COLOR_GREY); */
+        /* SDL_RenderClear(game->renderer); */
+        /* setColor(game->renderer, COLOR_BLACK); */
+        /* SDL_RenderFillRect(game->renderer, &background_rect); */
 
         SDL_Event event;
         SDL_KeyCode key = 0;
