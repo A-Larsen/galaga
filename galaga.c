@@ -165,17 +165,29 @@ bool
 enemyEntrance(uint8_t type, uint64_t frame, FPoint *point)
 {
     const float deg90 = (float)90 / (180.0f / M_PI);
+    static bool init = true;
+
+    if (init) {
+        point->x = -50,
+        point->y = (float)SCREEN_HEIGHT_PX - BEE_HEIGHT_PX - 10,
+        init = false;
+    }
 
     switch(type) {
         case ENTER_BOTTOM: {
+
             static float radians = deg90;
+
             if (frame % 4 == 0) {
                 enemyMove(point, radians);
                 if (radians < (M_PI / 2) + deg90) {
                     radians += .003f;
                 } else{
                     radians += .016f;
-                    if (radians >= (2.5 * M_PI) + deg90) return false;
+                    if (radians >= (2.5 * M_PI) + deg90) {
+                        init = true;
+                        return false;
+                    }
                 }
             }
 
@@ -194,10 +206,7 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
 
     drawExplosion(game->renderer, frame);
 
-    static FPoint bee_pos = {
-        .x = -50,
-        .y = (float)SCREEN_HEIGHT_PX - BEE_HEIGHT_PX - 10,
-    };
+    static FPoint bee_pos = {0};
 
     static SDL_Point fighter_pos = {
         .x = 10,
