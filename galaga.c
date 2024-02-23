@@ -158,7 +158,7 @@ enemieAttackPattern(uint8_t type, uint8_t enter, SDL_Point *point)
 
     int inc_x = 1;
     int inc_y = 1;
-    uint8_t radius = 5;
+    uint8_t radius = 4;
 
     if (ENTER_LEFT) inc_x = inc_x * -1;
 
@@ -174,15 +174,13 @@ enemieAttackPattern(uint8_t type, uint8_t enter, SDL_Point *point)
                 point->x += cosx * radius + inc_x;
                 point->y += siny * radius + inc_y;
 
-                /* printf("%f\n", cosx); */
                 if (loop_pos >= TAU) {
                     loop = false;
                 }
 
             }
 
-            if (point->y - point_offset.y == 200) {
-                printf("sup\n");
+            if ((point->y - point_offset.y) % 100 == 0) {
                 loop_pos = 0;
                 loop = true;
             }
