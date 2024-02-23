@@ -227,7 +227,7 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
 
     /* uint16_t degrees = 90; */
     static float radians = (float)90 / (180.0f / M_PI);
-    if (frame % 10 == 0) {
+    if (frame % 4 == 0) {
         enemyMove(&bee_pos, radians);
         if (radians < (M_PI / 2) + ((float)90 / (180.0f / M_PI))) {
             radians += .003f;
