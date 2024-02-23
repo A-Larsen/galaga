@@ -25,6 +25,8 @@ enum {COLOR_RED, COLOR_GREEN, COLOR_BLUE, COLOR_ORANGE, COLOR_GREY,
 
 enum {UPDATE_MAIN};
 
+enum {ENTER_LEFT, ENTER_RIGHT};
+
 typedef struct _Game {
     uint8_t level;
     uint64_t score;
@@ -140,13 +142,63 @@ drawExplosion(SDL_Renderer *renderer, uint64_t frame)
     return true;
 }
 
+void
+enemieAttackPattern(uint8_t type, uint8_t enter, SDL_Point *point)
+{
+    static SDL_Point point_offset = {0};
+    static bool loop = false;
+    static float loop_pos = 0;
+    static bool init = true;
+
+
+    if (init) {
+        memcpy(&point_offset, point, sizeof(SDL_Point)); 
+        init = false;
+    }
+
+    int inc_x = 1;
+    int inc_y = 1;
+    uint8_t radius = 5;
+
+    if (ENTER_LEFT) inc_x = inc_x * -1;
+
+    switch(type) {
+        case 0: {
+            if (!loop) {
+                point->x += inc_x;
+                point->y += inc_y;
+            } else {
+                loop_pos += inc_y * .1f;
+                float cosx = cosf(-loop_pos);
+                float siny = sinf(loop_pos);
+                point->x += cosx * radius + inc_x;
+                point->y += siny * radius + inc_y;
+
+                /* printf("%f\n", cosx); */
+                if (loop_pos >= TAU) {
+                    loop = false;
+                }
+
+            }
+
+            if (point->y - point_offset.y == 200) {
+                printf("sup\n");
+                loop_pos = 0;
+                loop = true;
+            }
+
+        }
+    }
+
+}
+
 static uint8_t
 updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
 {
     /* drawExplosion(game->renderer, frame); */
 
     static int i = 0;
-    uint8_t radius = 60;
+    /* uint8_t radius = 60; */
 
     static SDL_Point bee_center = {
         .x = SCREEN_WIDTH_PX / 2,
@@ -154,8 +206,9 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
     };
 
     static SDL_Point bee_pos = {
-        .x = 0,
-        .y = 0 
+        /* .x = SCREEN_WIDTH_PX / 2, */
+        .x = 10,
+        .y = 0,
     };
 
     static SDL_Point fighter_pos = {
@@ -165,8 +218,12 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
 
 
     if (frame % 10 == 0) {
-        bee_pos.x = cosf(-(i * .1f)) * radius + bee_center.x + i;
-        bee_pos.y = sinf(-(i * .1f)) * radius + bee_center.y - i;
+        /* printf("%d\n", i); */
+        /* bee_pos.x = cosf(-(i * .1f)) * radius + bee_center.x + i; */
+        /* bee_pos.y = sinf(-(i * .1f)) * radius + bee_center.y - i; */
+        /* bee_pos.x += i; */
+        /* bee_pos.y += i; */
+        enemieAttackPattern(0, ENTER_LEFT, &bee_pos);
         i++;
     }
 
@@ -201,7 +258,7 @@ Game_Init(Game *game)
 }
 
 void
-Game_Update(Game *game, const uint8_t fps)
+Game_Update(Game *game, const uint32_t fps)
 {
     uint64_t frame = 0;
     bool quit = false;
@@ -276,6 +333,6 @@ int main(void)
 {
     Game game;
     Game_Init(&game);
-    Game_Update(&game, 180);
+    Game_Update(&game, 1000);
     Game_Quit(&game);
 }
