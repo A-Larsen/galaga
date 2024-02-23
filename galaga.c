@@ -67,22 +67,25 @@ drawCircle(SDL_Renderer *renderer, SDL_Point center,
 }
 
 void
-drawExplosion(SDL_Renderer *renderer)
+drawExplosion(Game *game)
 {
+    SDL_Point center = {.x = 400, .y = 400};
+
+    uint8_t gap = 3;
+    uint8_t start = 2;
+
+    for (uint8_t i = gap; i < 50; i += gap) {
+        setColor(game->renderer , i % 2 ? COLOR_GREEN : COLOR_RED);
+        drawCircle(game->renderer, center, i, .3f);
+        
+    }
 
 }
 
 static uint8_t
 updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
 {
-    setColor(game->renderer, COLOR_GREEN);
-    SDL_Point center = {.x = 400, .y = 400};
-    drawCircle(game->renderer, center, 100, .5f);
-
-    setColor(game->renderer, COLOR_RED);
-    /* SDL_Point center = {.x = 400, .y = 400}; */
-    drawCircle(game->renderer, center, 50, .5f);
-
+    drawExplosion(game);
     return UPDATE_MAIN;
 }
 
