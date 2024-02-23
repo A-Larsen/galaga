@@ -231,6 +231,9 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
         enemyMove(&bee_pos, radians);
         if (radians < (M_PI / 2) + ((float)90 / (180.0f / M_PI))) {
             radians += .003f;
+        } else {
+            radians += .016f;
+
         }
         /* bee_pos.y -= .3f; */
     }
