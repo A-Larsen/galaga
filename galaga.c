@@ -235,6 +235,7 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
         } else if (! end){
             radians += .016f;
             if (radians >= (2.5 * M_PI) + ((float)90 / (180.0f / M_PI))  ) {
+                // this is where the enemy would be added to formation
                 end = true;
             }
         }
