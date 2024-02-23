@@ -51,13 +51,9 @@ void
 drawCircle(SDL_Renderer *renderer, SDL_Point center,
            uint16_t radius, float accuracy)
 {
-    float x, y = 0;
-
     for(float i = 0; i <= TAU + accuracy; i += accuracy) {
-
-
-        x = sinf(i + accuracy);
-        y = cosf(i + accuracy);
+        float x = sinf(i);
+        float y = cosf(i);
 
         if (!(i > 0)) continue;
 
@@ -67,16 +63,40 @@ drawCircle(SDL_Renderer *renderer, SDL_Point center,
 }
 
 void
+drawNoiseCircle(SDL_Renderer *renderer, SDL_Point center,
+           uint8_t px_size, uint16_t radius, float accuracy)
+{
+    for(float i = 0; i <= TAU + accuracy; i += accuracy) {
+        float n = (float)rand() / (float)RAND_MAX;
+
+        float x = sinf(n * TAU);
+        float y = cosf(n * TAU);
+
+        if (!(i > 0)) continue;
+
+        SDL_Rect rect = {
+            .x = x * radius + center.x,
+            .y = y * radius + center.y,
+            .w = px_size,
+            .h = px_size
+        };
+
+        SDL_RenderFillRect(renderer, &rect);
+
+    }
+}
+
+void
 drawExplosion(Game *game)
 {
     SDL_Point center = {.x = 400, .y = 400};
 
     uint8_t gap = 3;
-    uint8_t start = 2;
+    uint8_t start = 4;
 
-    for (uint8_t i = gap; i < 50; i += gap) {
+    for (uint8_t i = gap * start; i < 50; i += gap) {
         setColor(game->renderer , i % 2 ? COLOR_GREEN : COLOR_RED);
-        drawCircle(game->renderer, center, i, .3f);
+        drawNoiseCircle(game->renderer, center, 2, i, 4);
         
     }
 
