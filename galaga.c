@@ -93,17 +93,17 @@ drawExplosion(Game *game, uint64_t frame)
     static uint8_t i = 0;
     SDL_Point center = {.x = 400, .y = 400};
 
-    if (i >= 40) return;
+    if (i >= 55) return;
 
     uint8_t gap = 3;
 
-    setColor(game->renderer , i % 2 ? COLOR_WHITE : COLOR_RED);
+    setColor(game->renderer , i % 4 ? COLOR_WHITE : COLOR_RED);
 
     for (uint8_t j = 0; j < i; ++j) {
         drawNoiseCircle(game->renderer, center, 2, j, 4);
     }
 
-    i++;
+    i += 2;
 
 }
 
