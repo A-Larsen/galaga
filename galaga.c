@@ -151,17 +151,19 @@ enemyMove(FRect *point, bool invert_x, bool invert_y, float radians)
 bool
 enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FRect *rect)
 {
-    const float deg90 = (float)90 / (180.0f / M_PI);
     const int padding = 50;
     static bool init = true;
     static float radians = 0;
-    static float start_radians = deg90;
+    static float start_radians = 0;
 
     if (!(frame % 30 == 0)) return true;
-
     if (init) {
-        if (p1 == BOTTOM) radians = deg90;
-        if (p2 == TOP) radians = 0;
+
+        switch(p1) {
+            case BOTTOM: radians = M_PI / 2; break;
+            case TOP: radians = 0; break;
+        }
+
         start_radians = radians;
 
         if (p1 == BOTTOM && p2 == LEFT) {
