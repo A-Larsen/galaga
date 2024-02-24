@@ -7,6 +7,7 @@
 #include <stdbool.h>
 
 #define TAU ((float)(M_PI * 2.0f))
+#define M_3PI ((float)(M_PI * 3.0f))
 #define SCREEN_WIDTH_PX 600U
 #define SCREEN_HEIGHT_PX 800U
 #define FIGHTER_WIDTH_PX 45
@@ -197,7 +198,7 @@ enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FRect *rect)
                 r2 = radians;
             } else{
                 radians += .016f;
-                if (radians - r2 >= (3 * M_PI)) {
+                if (radians - r2 >= M_3PI) {
                     init = true;
                     return false;
                 }
@@ -214,7 +215,7 @@ enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FRect *rect)
                 r2 = radians;
             } else {
                 radians -= .016f;
-                if (radians - r2 <= -(2 * M_PI)) {
+                if (radians - r2 <= -TAU) {
                     init = true;
                     return false;
                 }
