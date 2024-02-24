@@ -84,9 +84,8 @@ drawFighter(Game * game, SDL_Point point)
 }
 
 void
-drawBee(SDL_Renderer *renderer, FRect point)
+drawBee(Game *game, FRect point)
 {
-    setColor(renderer, COLOR_BLUE);
 
     SDL_Rect rect = {
         .x = point.x,
@@ -95,7 +94,10 @@ drawBee(SDL_Renderer *renderer, FRect point)
         .h = BEE_HEIGHT_PX
     };
 
-    SDL_RenderFillRect(renderer, &rect);
+    if (game->update) {
+        setColor(game->renderer, COLOR_BLUE);
+        SDL_RenderFillRect(game->renderer, &rect);
+    }
 }
 
 bool
@@ -137,7 +139,7 @@ drawNoiseCircle(SDL_Renderer *renderer, SDL_Point center,
 }
 
 bool
-drawExplosion(SDL_Renderer *renderer, uint64_t frame)
+drawExplosion(Game *game, uint64_t frame)
 {
     static float i = 0;
     SDL_Point center = {.x = 400, .y = 400};
@@ -146,13 +148,15 @@ drawExplosion(SDL_Renderer *renderer, uint64_t frame)
 
     uint8_t gap = 3;
 
-    setColor(renderer, (int)i % 4 ? COLOR_WHITE : COLOR_RED);
+    if (game->update) {
+        setColor(game->renderer, (int)i % 4 ? COLOR_WHITE : COLOR_RED);
 
-    for (uint8_t j = 0; j < i; ++j) {
-        drawNoiseCircle(renderer, center, 3, j, 4);
+        for (uint8_t j = 0; j < i; ++j) {
+            drawNoiseCircle(game->renderer, center, 3, j, 4);
+        }
     }
 
-    i += .03f;
+    i += .02f;
     return true;
 }
 
@@ -173,7 +177,7 @@ enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FRect *rect)
     static float radians = 0;
     static float start_radians = deg90;
 
-    if (!(frame % 15 == 0)) return true;
+    if (!(frame % 30 == 0)) return true;
 
     if (init) {
         if (p1 == BOTTOM) radians = deg90;
@@ -245,7 +249,7 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
 {
     static bool isEntering = true;
 
-    drawExplosion(game->renderer, frame);
+    drawExplosion(game, frame);
 
     static FRect bee_pos = {.x = 0, .y = 0, .w = BEE_WIDTH_PX,
                             .h = BEE_HEIGHT_PX};
@@ -262,10 +266,12 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
         /* isEntering = enemyEntrance(BOTTOM, RIGHT, frame, &bee_pos); */
         isEntering = enemyEntrance(TOP, CENTER_LEFT, frame, &bee_pos);
 
-    drawBee(game->renderer, bee_pos);
+    drawBee(game, bee_pos);
 
-    SDL_RenderDrawLine(game->renderer, SCREEN_WIDTH_PX / 2, 0,
-                                       SCREEN_WIDTH_PX / 2, SCREEN_HEIGHT_PX);
+    if (game->update) {
+        SDL_RenderDrawLine(game->renderer, SCREEN_WIDTH_PX / 2, 0,
+                           SCREEN_WIDTH_PX / 2, SCREEN_HEIGHT_PX);
+    }
 
     return UPDATE_MAIN;
 }
