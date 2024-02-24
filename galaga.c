@@ -31,7 +31,6 @@ enum {TOP, BOTTOM, LEFT, RIGHT, CENTER_LEFT, CENTER_RIGHT};
 
 enum {UPDATE_MAIN};
 
-
 typedef struct _Game {
     uint8_t level;
     uint64_t score;
@@ -39,10 +38,12 @@ typedef struct _Game {
     SDL_Window *window;
 } Game;
 
-typedef struct _FPoint {
+typedef struct _FRect {
     float x;
     float y;
-} FPoint;
+    int w;
+    int h;
+} FRect;
 
 typedef uint8_t (*Update_callback)(Game *game, uint64_t frame, SDL_KeyCode key,
                                    bool keydown);
@@ -80,7 +81,7 @@ drawFighter(SDL_Renderer *renderer, SDL_Point point)
 }
 
 void
-drawBee(SDL_Renderer *renderer, FPoint point)
+drawBee(SDL_Renderer *renderer, FRect point)
 {
     setColor(renderer, COLOR_BLUE);
 
@@ -154,29 +155,33 @@ drawExplosion(SDL_Renderer *renderer, uint64_t frame)
 
 
 void
-enemyMove(FPoint *point, uint8_t p1, uint8_t p2, float radians)
+enemyMove(FRect *point, uint8_t p1, uint8_t p2, float radians)
 {
     point->x += sinf(radians) * ((p1 == RIGHT) ? 1 : -1);
     point->y += cosf(radians) * ((p2 == UP)  ? 1 : -1);
 }
 
 bool
-enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FPoint *point)
+enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FRect *rect)
 {
     const float deg90 = (float)90 / (180.0f / M_PI);
-    const int padding = 10;
-    const int hidden = 50;
+    const int padding = 50;
     static bool init = true;
 
     if (init) {
         if (p1 == LEFT && p2 == BOTTOM) {
-            point->x = -hidden - BEE_WIDTH_PX;
-            point->y = (float)SCREEN_HEIGHT_PX - BEE_HEIGHT_PX - padding;
+            rect->x = -padding - rect->w;
+            rect->y = (float)SCREEN_HEIGHT_PX - rect->w - padding;
         }
 
        if (p1 == RIGHT && p2 == BOTTOM) {
-            point->x = SCREEN_WIDTH_PX + hidden;
-            point->y = (float)SCREEN_HEIGHT_PX - BEE_WIDTH_PX - padding;
+            rect->x = SCREEN_WIDTH_PX + padding;
+            rect->y = (float)SCREEN_HEIGHT_PX - rect->w - padding;
+       }
+
+       if (p1 == CENTER_LEFT && p2 == BOTTOM) {
+            rect->x = SCREEN_WIDTH_PX + padding;
+            rect->y = (float)SCREEN_HEIGHT_PX - rect->w - padding;
        }
 
         init = false;
@@ -188,7 +193,7 @@ enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FPoint *point)
 
         if (frame % 4 == 0) {
 
-            enemyMove(point, p1 == RIGHT ? LEFT : RIGHT, UP, radians);
+            enemyMove(rect, p1 == RIGHT ? LEFT : RIGHT, UP, radians);
 
             if (radians < (M_PI / 2) + deg90) {
                 radians += .003f;
@@ -212,7 +217,8 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
 
     drawExplosion(game->renderer, frame);
 
-    static FPoint bee_pos = {0};
+    static FRect bee_pos = {.x = 0, .y = 0, .w = BEE_WIDTH_PX,
+                            .h = BEE_HEIGHT_PX};
 
     static SDL_Point fighter_pos = {
         .x = 10,
