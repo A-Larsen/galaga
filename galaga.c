@@ -150,7 +150,7 @@ drawExplosion(SDL_Renderer *renderer, uint64_t frame)
         drawNoiseCircle(renderer, center, 3, j, 4);
     }
 
-    i += .18f;
+    i += .03f;
     return true;
 }
 
