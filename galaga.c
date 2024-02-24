@@ -163,19 +163,20 @@ bool
 enemyEntrance(uint8_t type, uint8_t pos, uint64_t frame, FPoint *point)
 {
     const float deg90 = (float)90 / (180.0f / M_PI);
+    const int padding= 10;
     static bool init = true;
 
     if (init) {
         switch(pos) {
             case LEFT: {
                 point->x = -50,
-                point->y = (float)SCREEN_HEIGHT_PX - BEE_HEIGHT_PX - 10,
+                point->y = (float)SCREEN_HEIGHT_PX - BEE_HEIGHT_PX - padding,
                 init = false;
                 break;
             }
             case RIGHT: {
                 point->x = SCREEN_WIDTH_PX - BEE_WIDTH_PX - 10,
-                point->y = (float)SCREEN_HEIGHT_PX - BEE_WIDTH_PX - 10,
+                point->y = (float)SCREEN_HEIGHT_PX - BEE_WIDTH_PX - padding,
                 init = false;
                 break;
             }
@@ -222,7 +223,7 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
     drawFighter(game->renderer, fighter_pos);
 
     if (isEntering) 
-        isEntering = enemyEntrance(ENTER_BOTTOM, LEFT, frame, &bee_pos);
+        isEntering = enemyEntrance(ENTER_BOTTOM, RIGHT, frame, &bee_pos);
 
     drawBee(game->renderer, bee_pos);
 
