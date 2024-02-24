@@ -183,13 +183,14 @@ enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FPoint *point)
     }
 
 
-    if ((p1 == RIGHT || p1 == LEFT) && p2 == UP) {
+    if (p2 == UP) {
 
         static float radians = deg90;
 
         if (frame % 4 == 0) {
 
             enemyMove(point, p1 == RIGHT ? LEFT : RIGHT, p2, radians);
+
             if (radians < (M_PI / 2) + deg90) {
                 radians += .003f;
             } else{
