@@ -158,7 +158,7 @@ void
 enemyMove(FRect *point, uint8_t p1, uint8_t p2, float radians)
 {
     point->x += sinf(radians) * ((p1 == RIGHT) ? 1 : -1);
-    point->y += cosf(radians) * ((p2 == UP)  ? 1 : -1);
+    point->y += cosf(radians) * ((p2 == DOWN)  ? 1 : -1);
 }
 
 bool
@@ -167,6 +167,8 @@ enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FRect *rect)
     const float deg90 = (float)90 / (180.0f / M_PI);
     const int padding = 50;
     static bool init = true;
+
+    if (!(frame % 4 == 0)) return true;
 
     if (init) {
         if (p1 == BOTTOM && p2 == LEFT) {
@@ -179,31 +181,37 @@ enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FRect *rect)
             rect->y = (float)SCREEN_HEIGHT_PX - rect->w - padding;
        }
 
-       if (p1 == BOTTOM && p2 == CENTER_LEFT) {
-            rect->x = SCREEN_WIDTH_PX + padding;
-            rect->y = (float)SCREEN_HEIGHT_PX - rect->w - padding;
+       if (p1 == TOP && p2 == CENTER_LEFT) {
+            rect->x = ((float)SCREEN_WIDTH_PX / 2.0f) - rect->w + padding;
+            rect->y = rect->h + padding;
        }
 
         init = false;
     }
 
 
-    if (p1 == BOTTOM) {
-        static float radians = deg90;
+    switch(p1) {
+        case BOTTOM: {
+            static float radians = deg90;
 
-        if (frame % 4 == 0) {
+                enemyMove(rect, p2 == RIGHT ? LEFT : RIGHT, DOWN, radians);
 
-            enemyMove(rect, p2 == RIGHT ? LEFT : RIGHT, UP, radians);
-
-            if (radians < (M_PI / 2) + deg90) {
-                radians += .003f;
-            } else{
-                radians += .016f;
-                if (radians >= (2.5 * M_PI) + deg90) {
-                    init = true;
-                    return false;
+                if (radians < (M_PI / 2) + deg90) {
+                    radians += .003f;
+                } else{
+                    radians += .016f;
+                    if (radians >= (2.5 * M_PI) + deg90) {
+                        init = true;
+                        return false;
+                    }
                 }
-            }
+            break;
+        }
+        case TOP: {
+            static float radians = 0;
+                enemyMove(rect, p2 == CENTER_RIGHT ? LEFT : RIGHT, DOWN,
+                          radians);
+            break;
         }
     }
 
@@ -228,7 +236,9 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
     drawFighter(game->renderer, fighter_pos);
 
     if (isEntering) 
-        isEntering = enemyEntrance(BOTTOM, LEFT,frame, &bee_pos);
+        isEntering = enemyEntrance(BOTTOM, LEFT, frame, &bee_pos);
+        /* isEntering = enemyEntrance(BOTTOM, RIGHT, frame, &bee_pos); */
+        /* isEntering = enemyEntrance(TOP, CENTER_LEFT, frame, &bee_pos); */
 
     drawBee(game->renderer, bee_pos);
 
