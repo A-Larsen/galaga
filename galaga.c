@@ -68,7 +68,7 @@ setColor(SDL_Renderer *renderer, uint8_t color)
 void
 drawFighter(SDL_Renderer *renderer, SDL_Point point)
 {
-    setColor(renderer , COLOR_GREEN);
+    setColor(renderer, COLOR_GREEN);
 
     SDL_Rect rect = {
         .x = point.x,
@@ -83,7 +83,7 @@ drawFighter(SDL_Renderer *renderer, SDL_Point point)
 void
 drawBee(SDL_Renderer *renderer, FPoint point)
 {
-    setColor(renderer , COLOR_BLUE);
+    setColor(renderer, COLOR_BLUE);
 
     SDL_Rect rect = {
         .x = point.x,
@@ -143,7 +143,7 @@ drawExplosion(SDL_Renderer *renderer, uint64_t frame)
 
     uint8_t gap = 3;
 
-    setColor(renderer , (int)i % 4 ? COLOR_WHITE : COLOR_RED);
+    setColor(renderer, (int)i % 4 ? COLOR_WHITE : COLOR_RED);
 
     for (uint8_t j = 0; j < i; ++j) {
         drawNoiseCircle(renderer, center, 3, j, 4);
