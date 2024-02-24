@@ -167,13 +167,14 @@ enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FRect *rect)
     const float deg90 = (float)90 / (180.0f / M_PI);
     const int padding = 50;
     static bool init = true;
-    static float radians = deg90;
+    static float radians = 0;
     static float start_radians = deg90;
 
     if (!(frame % 4 == 0)) return true;
 
     if (init) {
-        if (LEFT) radians = deg90;
+        if (p1 == BOTTOM) radians = deg90;
+        if (p2 == TOP) radians = 0;
         start_radians = radians;
 
         if (p1 == BOTTOM && p2 == LEFT) {
@@ -187,8 +188,8 @@ enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FRect *rect)
        }
 
        if (p1 == TOP && p2 == CENTER_LEFT) {
-            rect->x = ((float)SCREEN_WIDTH_PX / 2.0f) - rect->w + padding;
-            rect->y = rect->h + padding;
+            rect->x = ((float)SCREEN_WIDTH_PX / 2.0f) - rect->w - 30;
+            rect->y = -padding - rect->h;
        }
 
         init = false;
@@ -214,7 +215,7 @@ enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FRect *rect)
             break;
         }
         case TOP: {
-            enemyMove(rect, 1, 0, radians);
+            enemyMove(rect, 0, 0, radians);
             break;
         }
     }
@@ -241,8 +242,8 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
 
     if (isEntering) 
         /* isEntering = enemyEntrance(BOTTOM, LEFT, frame, &bee_pos); */
-        isEntering = enemyEntrance(BOTTOM, RIGHT, frame, &bee_pos);
-        /* isEntering = enemyEntrance(TOP, CENTER_LEFT, frame, &bee_pos); */
+        /* isEntering = enemyEntrance(BOTTOM, RIGHT, frame, &bee_pos); */
+        isEntering = enemyEntrance(TOP, CENTER_LEFT, frame, &bee_pos);
 
     drawBee(game->renderer, bee_pos);
 
