@@ -7,7 +7,7 @@
 #include <stdbool.h>
 
 #define TAU ((float)(M_PI * 2.0f))
-#define SCREEN_WIDTH_PX 1000U
+#define SCREEN_WIDTH_PX 600U
 #define SCREEN_HEIGHT_PX 800U
 #define FIGHTER_WIDTH_PX 45
 #define FIGHTER_HEIGHT_PX 58
@@ -219,13 +219,16 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
         .y = SCREEN_HEIGHT_PX - FIGHTER_HEIGHT_PX - 10
     };
 
+
     drawFighter(game->renderer, fighter_pos);
 
     if (isEntering) 
-        isEntering = enemyEntrance(LEFT, BOTTOM, frame, &bee_pos);
+        isEntering = enemyEntrance(RIGHT, BOTTOM, frame, &bee_pos);
 
     drawBee(game->renderer, bee_pos);
 
+    SDL_RenderDrawLine(game->renderer, SCREEN_WIDTH_PX / 2, 0,
+                                       SCREEN_WIDTH_PX / 2, SCREEN_HEIGHT_PX);
 
     return UPDATE_MAIN;
 }
