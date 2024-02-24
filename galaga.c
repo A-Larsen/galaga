@@ -166,16 +166,17 @@ enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FPoint *point)
 {
     const float deg90 = (float)90 / (180.0f / M_PI);
     const int padding = 10;
+    const int hidden = 50;
     static bool init = true;
 
     if (init) {
         if (p1 == LEFT && p2 == UP) {
-            point->x = -50;
+            point->x = -hidden;
             point->y = (float)SCREEN_HEIGHT_PX - BEE_HEIGHT_PX - padding;
         }
 
        if (p1 == RIGHT && p2 == UP) {
-            point->x = SCREEN_WIDTH_PX - BEE_WIDTH_PX - 10;
+            point->x = SCREEN_WIDTH_PX + BEE_WIDTH_PX  + hidden;
             point->y = (float)SCREEN_HEIGHT_PX - BEE_WIDTH_PX - padding;
         }
 
