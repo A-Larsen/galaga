@@ -36,6 +36,7 @@ typedef struct _Game {
     uint64_t score;
     SDL_Renderer *renderer;
     SDL_Window *window;
+    bool quit;
 } Game;
 
 typedef struct _FRect {
@@ -296,7 +297,6 @@ void
 Game_Update(Game *game, const uint32_t fps)
 {
     uint64_t frame = 0;
-    bool quit = false;
     bool keydown = false;
     uint8_t update_id = 0;
     Update_callback update;
@@ -309,7 +309,7 @@ Game_Update(Game *game, const uint32_t fps)
         .h = SCREEN_HEIGHT_PX
     };
 
-    while (!quit) {
+    while (!game->quit) {
         uint32_t start = SDL_GetTicks();
 
         switch (update_id) {
@@ -336,7 +336,7 @@ Game_Update(Game *game, const uint32_t fps)
                 }
 
                 case SDL_KEYUP: keydown = false; break;
-                case SDL_QUIT: quit = true; break;
+                case SDL_QUIT: game->quit = true; break;
             }
         }
 
