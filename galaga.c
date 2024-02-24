@@ -171,12 +171,12 @@ enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FPoint *point)
 
     if (init) {
         if (p1 == LEFT && p2 == UP) {
-            point->x = -hidden;
+            point->x = -hidden - BEE_WIDTH_PX;
             point->y = (float)SCREEN_HEIGHT_PX - BEE_HEIGHT_PX - padding;
         }
 
        if (p1 == RIGHT && p2 == UP) {
-            point->x = SCREEN_WIDTH_PX + BEE_WIDTH_PX + hidden;
+            point->x = SCREEN_WIDTH_PX + hidden;
             point->y = (float)SCREEN_HEIGHT_PX - BEE_WIDTH_PX - padding;
         }
 
@@ -223,7 +223,7 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
     drawFighter(game->renderer, fighter_pos);
 
     if (isEntering) 
-        isEntering = enemyEntrance(LEFT, UP, frame, &bee_pos);
+        isEntering = enemyEntrance(RIGHT, UP, frame, &bee_pos);
 
     drawBee(game->renderer, bee_pos);
 
