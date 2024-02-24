@@ -193,7 +193,7 @@ enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FRect *rect)
 
             float r2 = 0;
 
-            if (radians - start_radians < (M_PI_2)) {
+            if (radians - start_radians < M_PI_2) {
                 radians += .003f;
                 r2 = radians;
             } else{
@@ -210,7 +210,7 @@ enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FRect *rect)
 
             float r2 = 0;
 
-            if (radians - start_radians > -(M_PI_4)) {
+            if (radians - start_radians > -M_PI_4) {
                 radians -= .002f;
                 r2 = radians;
             } else {
