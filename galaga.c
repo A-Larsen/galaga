@@ -134,22 +134,20 @@ drawNoiseCircle(SDL_Renderer *renderer, SDL_Point center,
 bool
 drawExplosion(SDL_Renderer *renderer, uint64_t frame)
 {
-    /* if (!(frame % 10 == 0)) return false; */
-
-    static uint8_t i = 0;
+    static float i = 0;
     SDL_Point center = {.x = 400, .y = 400};
 
     if (i >= 55) return false;
 
     uint8_t gap = 3;
 
-    setColor(renderer , i % 4 ? COLOR_WHITE : COLOR_RED);
+    setColor(renderer , (int)i % 4 ? COLOR_WHITE : COLOR_RED);
 
     for (uint8_t j = 0; j < i; ++j) {
         drawNoiseCircle(renderer, center, 2, j, 4);
     }
 
-    i += 2;
+    i += .2f;
     return true;
 }
 
