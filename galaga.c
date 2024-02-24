@@ -46,6 +46,8 @@ typedef struct _FRect {
     float y;
     int w;
     int h;
+    float radians;
+    bool init;
 } FRect;
 
 typedef uint8_t (*Update_callback)(Game *game, uint64_t frame, SDL_KeyCode key,
@@ -153,19 +155,17 @@ bool
 enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FRect *rect)
 {
     const int padding = 50;
-    static bool init = true;
-    static float radians = 0;
     static float start_radians = 0;
 
     if (!(frame % 30 == 0)) return true;
-    if (init) {
+    if (rect->init) {
 
         switch(p1) {
-            case BOTTOM: radians = M_PI_2; break;
-            case TOP: radians = 0; break;
+            case BOTTOM: rect->radians = M_PI_2; break;
+            case TOP: rect->radians = 0; break;
         }
 
-        start_radians = radians;
+        start_radians = rect->radians;
 
         if (p1 == BOTTOM && p2 == LEFT) {
             rect->x = -padding - rect->w;
@@ -182,41 +182,41 @@ enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FRect *rect)
             rect->y = -padding - rect->h;
        }
 
-        init = false;
+        rect->init = false;
     }
 
 
     switch(p1) {
         case BOTTOM: {
 
-            enemyMove(rect, p2 == LEFT ? 0 : 1, 0, radians);
+            enemyMove(rect, p2 == LEFT ? 0 : 1, 0, rect->radians);
 
             float r2 = 0;
 
-            if (radians - start_radians < M_PI_2) {
-                radians += .003f;
-                r2 = radians;
+            if (rect->radians - start_radians < M_PI_2) {
+                rect->radians += .003f;
+                r2 = rect->radians;
             } else{
-                radians += .016f;
-                if (radians - r2 >= M_3PI) {
-                    init = true;
+                rect->radians += .016f;
+                if (rect->radians - r2 >= M_3PI) {
+                    rect->init = true;
                     return false;
                 }
             }
             break;
         }
         case TOP: {
-            enemyMove(rect, p2 == LEFT ? 0 : 1, 0, radians);
+            enemyMove(rect, p2 == LEFT ? 0 : 1, 0, rect->radians);
 
             float r2 = 0;
 
-            if (radians - start_radians > -M_PI_4) {
-                radians -= .002f;
-                r2 = radians;
+            if (rect->radians - start_radians > -M_PI_4) {
+                rect->radians -= .002f;
+                r2 = rect->radians;
             } else {
-                radians -= .016f;
-                if (radians - r2 <= -TAU) {
-                    init = true;
+                rect->radians -= .016f;
+                if (rect->radians - r2 <= -TAU) {
+                    rect->init = true;
                     return false;
                 }
             }
@@ -230,11 +230,15 @@ enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FRect *rect)
 static uint8_t
 updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
 {
-    static bool isEntering = true;
+    static bool b1IsEntering = true;
+    static bool b2IsEntering = true;
 
 
-    static FRect bee_pos = {.x = 0, .y = 0, .w = BEE_WIDTH_PX,
-                            .h = BEE_HEIGHT_PX};
+    static FRect bee1_pos = {.x = 0, .y = 0, .w = BEE_WIDTH_PX,
+                            .h = BEE_HEIGHT_PX, .radians = 0, .init = true};
+
+    static FRect bee2_pos = {.x = 0, .y = 0, .w = BEE_WIDTH_PX,
+                            .h = BEE_HEIGHT_PX, .radians = 0, .init = true};
 
     static SDL_Point fighter_pos = {
         .x = 10,
@@ -242,16 +246,20 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
     };
 
 
-    if (isEntering) 
-        /* isEntering = enemyEntrance(BOTTOM, LEFT, frame, &bee_pos); */
-        isEntering = enemyEntrance(BOTTOM, RIGHT, frame, &bee_pos);
-        /* isEntering = enemyEntrance(TOP, CENTER_LEFT, frame, &bee_pos); */
+    if (b1IsEntering) {
+        b1IsEntering = enemyEntrance(BOTTOM, RIGHT, frame, &bee1_pos);
+    }
+
+    if (b2IsEntering) {
+        b2IsEntering = enemyEntrance(BOTTOM, LEFT, frame, &bee2_pos);
+    }
 
 
     if (game->canDraw) {
         drawExplosion(game->renderer, frame);
         drawFighter(game->renderer, fighter_pos);
-        drawBee(game->renderer, bee_pos);
+        drawBee(game->renderer, bee1_pos);
+        drawBee(game->renderer, bee2_pos);
         SDL_RenderDrawLine(game->renderer, SCREEN_WIDTH_PX / 2, 0,
                            SCREEN_WIDTH_PX / 2, SCREEN_HEIGHT_PX);
     }
