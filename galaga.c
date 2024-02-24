@@ -37,6 +37,7 @@ typedef struct _Game {
     SDL_Renderer *renderer;
     SDL_Window *window;
     bool quit;
+    bool update;
 } Game;
 
 typedef struct _FRect {
@@ -67,10 +68,8 @@ setColor(SDL_Renderer *renderer, uint8_t color)
 }
 
 void
-drawFighter(SDL_Renderer *renderer, SDL_Point point)
+drawFighter(Game * game, SDL_Point point)
 {
-    setColor(renderer, COLOR_GREEN);
-
     SDL_Rect rect = {
         .x = point.x,
         .y = point.y,
@@ -78,7 +77,10 @@ drawFighter(SDL_Renderer *renderer, SDL_Point point)
         .h = FIGHTER_HEIGHT_PX
     };
 
-    SDL_RenderFillRect(renderer, &rect);
+    if (game->update) {
+        setColor(game->renderer, COLOR_GREEN);
+        SDL_RenderFillRect(game->renderer, &rect);
+    }
 }
 
 void
@@ -253,7 +255,7 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
         .y = SCREEN_HEIGHT_PX - FIGHTER_HEIGHT_PX - 10
     };
 
-    drawFighter(game->renderer, fighter_pos);
+    drawFighter(game, fighter_pos);
 
     if (isEntering) 
         /* isEntering = enemyEntrance(BOTTOM, LEFT, frame, &bee_pos); */
@@ -311,15 +313,19 @@ Game_Update(Game *game, const uint32_t lps, const uint32_t fps)
 
     while (!game->quit) {
         uint32_t start = SDL_GetTicks();
+        game->update = frame % (lps / fps) == 0;
 
         switch (update_id) {
             case UPDATE_MAIN: update = updateMain; break;
         }
 
-        setColor(game->renderer, COLOR_GREY);
-        SDL_RenderClear(game->renderer);
-        setColor(game->renderer, COLOR_BLACK);
-        SDL_RenderFillRect(game->renderer, &background_rect);
+        if (game->update) {
+            setColor(game->renderer, COLOR_GREY);
+            SDL_RenderClear(game->renderer);
+            setColor(game->renderer, COLOR_BLACK);
+            SDL_RenderFillRect(game->renderer, &background_rect);
+
+        }
 
         SDL_Event event;
         SDL_KeyCode key = 0;
@@ -350,8 +356,10 @@ Game_Update(Game *game, const uint32_t lps, const uint32_t fps)
             SDL_Delay(elapsed_time);
         } 
 
-        if (frame % (lps / fps) == 0)
+
+        if (game->update)
             SDL_RenderPresent(game->renderer);
+
         frame++;
     }
 }
