@@ -177,7 +177,7 @@ enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FPoint *point)
        if (p1 == RIGHT && p2 == BOTTOM) {
             point->x = SCREEN_WIDTH_PX + hidden;
             point->y = (float)SCREEN_HEIGHT_PX - BEE_WIDTH_PX - padding;
-        }
+       }
 
         init = false;
     }
@@ -218,7 +218,6 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
         .x = 10,
         .y = SCREEN_HEIGHT_PX - FIGHTER_HEIGHT_PX - 10
     };
-
 
     drawFighter(game->renderer, fighter_pos);
 
