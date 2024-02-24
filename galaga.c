@@ -176,7 +176,7 @@ enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FPoint *point)
         }
 
        if (p1 == RIGHT && p2 == UP) {
-            point->x = SCREEN_WIDTH_PX + BEE_WIDTH_PX  + hidden;
+            point->x = SCREEN_WIDTH_PX + BEE_WIDTH_PX + hidden;
             point->y = (float)SCREEN_HEIGHT_PX - BEE_WIDTH_PX - padding;
         }
 
@@ -185,7 +185,6 @@ enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FPoint *point)
 
 
     if (p2 == UP) {
-
         static float radians = deg90;
 
         if (frame % 4 == 0) {
