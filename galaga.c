@@ -155,20 +155,16 @@ drawExplosion(SDL_Renderer *renderer, uint64_t frame)
 
 
 void
-/* enemyMove(FRect *point, uint8_t p1, uint8_t p2, float radians) */
-enemyMove(FRect *point, float radians)
+enemyMove(FRect *point, bool invert_x, bool invert_y, float radians)
 {
-    /* point->x += sinf(radians) * ((p1 == RIGHT) ? 1 : -1); */
-    /* point->y += cosf(radians) * ((p2 == DOWN)  ? 1 : -1); */
-    point->x += sinf(radians);
-    point->y += cosf(radians);
+    point->x += sinf(radians) * (invert_x ? -1 : 1);
+    point->y += cosf(radians) * (invert_y ? -1 : 1);
 }
 
 bool
 enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FRect *rect)
 {
     const float deg90 = (float)90 / (180.0f / M_PI);
-    const float deg270 = (float)270 / (180.0f / M_PI);
     const int padding = 50;
     static bool init = true;
     static float radians = deg90;
@@ -177,11 +173,7 @@ enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FRect *rect)
     if (!(frame % 4 == 0)) return true;
 
     if (init) {
-        switch(p2) {
-            case LEFT: radians = deg90; break;
-            case RIGHT: radians = deg270; break;
-        }
-
+        if (LEFT) radians = deg90;
         start_radians = radians;
 
         if (p1 == BOTTOM && p2 == LEFT) {
@@ -206,47 +198,22 @@ enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FRect *rect)
     switch(p1) {
         case BOTTOM: {
 
-            enemyMove(rect, radians);
+            enemyMove(rect, p2 == LEFT ? 0 : 1, 0, radians);
 
-            float r2 = 0;
-
-            switch(p2) {
-                case LEFT: {
-                    if (radians - start_radians < (M_PI / 2)) {
-                        radians += .003f;
-                        r2 = radians;
-                    } else{
-                        radians += .016f;
-                        if (radians - r2 >= (M_PI * 3)) {
-                            init = true;
-                            return false;
-                        }
-                    }
-                    break;
-                }
-
-                case RIGHT: {
-                    if (radians - start_radians > -(M_PI / 2)) {
-                        radians -= .003f;
-                        r2 = radians;
-                    } else{
-                        radians -= .016f;
-                        if (radians - r2 <= -M_PI) {
-                            init = true;
-                            return false;
-                        }
-                    }
-                    break;
+            if (radians - start_radians < (M_PI / 2)) {
+                radians += .003f;
+            } else{
+                radians += .016f;
+                if (radians - start_radians >= (2.5 * M_PI)) {
+                    init = true;
+                    return false;
                 }
             }
-
-
             break;
         }
         case TOP: {
             static float radians = 0;
-            /* enemyMove(rect, p2 == CENTER_RIGHT ? LEFT : RIGHT, DOWN, */
-            /*           radians); */
+            enemyMove(rect, 1, 0, radians);
             break;
         }
     }
@@ -257,14 +224,11 @@ enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FRect *rect)
 static uint8_t
 updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
 {
-    static bool b1IsEntering = true;
-    /* static bool b2IsEntering = true; */
+    static bool isEntering = true;
 
     drawExplosion(game->renderer, frame);
 
-    static FRect bee1_pos = {.x = 0, .y = 0, .w = BEE_WIDTH_PX,
-                            .h = BEE_HEIGHT_PX};
-    static FRect bee2_pos = {.x = 0, .y = 0, .w = BEE_WIDTH_PX,
+    static FRect bee_pos = {.x = 0, .y = 0, .w = BEE_WIDTH_PX,
                             .h = BEE_HEIGHT_PX};
 
     static SDL_Point fighter_pos = {
@@ -274,14 +238,12 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
 
     drawFighter(game->renderer, fighter_pos);
 
-    if (b1IsEntering)  
-        b1IsEntering = enemyEntrance(BOTTOM, RIGHT, frame, &bee1_pos);
+    if (isEntering) 
+        /* isEntering = enemyEntrance(BOTTOM, LEFT, frame, &bee_pos); */
+        isEntering = enemyEntrance(BOTTOM, RIGHT, frame, &bee_pos);
+        /* isEntering = enemyEntrance(TOP, CENTER_LEFT, frame, &bee_pos); */
 
-    /* if (b2IsEntering) */  
-    /*     b2IsEntering = enemyEntrance(BOTTOM, LEFT, frame, &bee2_pos); */
-
-    drawBee(game->renderer, bee1_pos);
-    /* drawBee(game->renderer, bee2_pos); */
+    drawBee(game->renderer, bee_pos);
 
     SDL_RenderDrawLine(game->renderer, SCREEN_WIDTH_PX / 2, 0,
                                        SCREEN_WIDTH_PX / 2, SCREEN_HEIGHT_PX);
