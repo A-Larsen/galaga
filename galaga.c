@@ -37,7 +37,7 @@ typedef struct _Game {
     SDL_Renderer *renderer;
     SDL_Window *window;
     bool quit;
-    bool update;
+    bool canDraw;
 } Game;
 
 typedef struct _FRect {
@@ -77,7 +77,7 @@ drawFighter(Game * game, SDL_Point point)
         .h = FIGHTER_HEIGHT_PX
     };
 
-    if (game->update) {
+    if (game->canDraw) {
         setColor(game->renderer, COLOR_GREEN);
         SDL_RenderFillRect(game->renderer, &rect);
     }
@@ -94,7 +94,7 @@ drawBee(Game *game, FRect point)
         .h = BEE_HEIGHT_PX
     };
 
-    if (game->update) {
+    if (game->canDraw) {
         setColor(game->renderer, COLOR_BLUE);
         SDL_RenderFillRect(game->renderer, &rect);
     }
@@ -148,7 +148,7 @@ drawExplosion(Game *game, uint64_t frame)
 
     uint8_t gap = 3;
 
-    if (game->update) {
+    if (game->canDraw) {
         setColor(game->renderer, (int)i % 4 ? COLOR_WHITE : COLOR_RED);
 
         for (uint8_t j = 0; j < i; ++j) {
@@ -268,7 +268,7 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
 
     drawBee(game, bee_pos);
 
-    if (game->update) {
+    if (game->canDraw) {
         SDL_RenderDrawLine(game->renderer, SCREEN_WIDTH_PX / 2, 0,
                            SCREEN_WIDTH_PX / 2, SCREEN_HEIGHT_PX);
     }
@@ -319,13 +319,13 @@ Game_Update(Game *game, const uint32_t lps, const uint32_t fps)
 
     while (!game->quit) {
         uint32_t start = SDL_GetTicks();
-        game->update = frame % (lps / fps) == 0;
+        game->canDraw = frame % (lps / fps) == 0;
 
         switch (update_id) {
             case UPDATE_MAIN: update = updateMain; break;
         }
 
-        if (game->update) {
+        if (game->canDraw) {
             setColor(game->renderer, COLOR_GREY);
             SDL_RenderClear(game->renderer);
             setColor(game->renderer, COLOR_BLACK);
@@ -363,7 +363,7 @@ Game_Update(Game *game, const uint32_t lps, const uint32_t fps)
         } 
 
 
-        if (game->update)
+        if (game->canDraw)
             SDL_RenderPresent(game->renderer);
 
         frame++;
