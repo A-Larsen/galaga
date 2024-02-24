@@ -24,9 +24,7 @@
 enum {COLOR_RED, COLOR_GREEN, COLOR_BLUE, COLOR_ORANGE, COLOR_GREY,
       COLOR_WHITE, COLOR_BLACK, COLOR_SIZE};
 
-enum {UP, DOWN};
-
-enum {LEFT, RIGHT, CENTER};
+enum {UP, DOWN, LEFT, RIGHT, CENTER_LEFT, CENTER_RIGHT};
 
 enum {UPDATE_MAIN};
 
@@ -221,7 +219,7 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
     drawFighter(game->renderer, fighter_pos);
 
     if (isEntering) 
-        isEntering = enemyEntrance(RIGHT, UP, frame, &bee_pos);
+        isEntering = enemyEntrance(LEFT, UP, frame, &bee_pos);
 
     drawBee(game->renderer, bee_pos);
 
