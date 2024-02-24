@@ -68,7 +68,7 @@ setColor(SDL_Renderer *renderer, uint8_t color)
 }
 
 void
-drawFighter(Game * game, SDL_Point point)
+drawFighter(SDL_Renderer *renderer, SDL_Point point)
 {
     SDL_Rect rect = {
         .x = point.x,
@@ -77,14 +77,12 @@ drawFighter(Game * game, SDL_Point point)
         .h = FIGHTER_HEIGHT_PX
     };
 
-    if (game->canDraw) {
-        setColor(game->renderer, COLOR_GREEN);
-        SDL_RenderFillRect(game->renderer, &rect);
-    }
+    setColor(renderer, COLOR_GREEN);
+    SDL_RenderFillRect(renderer, &rect);
 }
 
 void
-drawBee(Game *game, FRect point)
+drawBee(SDL_Renderer *renderer, FRect point)
 {
 
     SDL_Rect rect = {
@@ -94,24 +92,8 @@ drawBee(Game *game, FRect point)
         .h = BEE_HEIGHT_PX
     };
 
-    if (game->canDraw) {
-        setColor(game->renderer, COLOR_BLUE);
-        SDL_RenderFillRect(game->renderer, &rect);
-    }
-}
-
-bool
-getCirclePoint(SDL_Point *point, SDL_Point center,
-               uint16_t radius, uint8_t i)
-{
-    float accuracy = .02f;
-
-    point->x = sinf(i * accuracy);
-    point->y = cosf(i * accuracy);
-
-    if (i <= TAU + accuracy) return false;
-
-    return true;
+    setColor(renderer, COLOR_BLUE);
+    SDL_RenderFillRect(renderer, &rect);
 }
 
 void
@@ -139,7 +121,7 @@ drawNoiseCircle(SDL_Renderer *renderer, SDL_Point center,
 }
 
 bool
-drawExplosion(Game *game, uint64_t frame)
+drawExplosion(SDL_Renderer *renderer, uint64_t frame)
 {
     static float i = 0;
     SDL_Point center = {.x = 400, .y = 400};
@@ -148,15 +130,13 @@ drawExplosion(Game *game, uint64_t frame)
 
     uint8_t gap = 3;
 
-    if (game->canDraw) {
-        setColor(game->renderer, (int)i % 4 ? COLOR_WHITE : COLOR_RED);
+    setColor(renderer, (int)i % 4 ? COLOR_WHITE : COLOR_RED);
 
-        for (uint8_t j = 0; j < i; ++j) {
-            drawNoiseCircle(game->renderer, center, 3, j, 4);
-        }
+    for (uint8_t j = 0; j < i; ++j) {
+        drawNoiseCircle(renderer, center, 3, j, 4);
     }
 
-    i += .02f;
+    i += .1f;
     return true;
 }
 
@@ -249,7 +229,6 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
 {
     static bool isEntering = true;
 
-    drawExplosion(game, frame);
 
     static FRect bee_pos = {.x = 0, .y = 0, .w = BEE_WIDTH_PX,
                             .h = BEE_HEIGHT_PX};
@@ -259,16 +238,17 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
         .y = SCREEN_HEIGHT_PX - FIGHTER_HEIGHT_PX - 10
     };
 
-    drawFighter(game, fighter_pos);
 
     if (isEntering) 
         /* isEntering = enemyEntrance(BOTTOM, LEFT, frame, &bee_pos); */
         /* isEntering = enemyEntrance(BOTTOM, RIGHT, frame, &bee_pos); */
         isEntering = enemyEntrance(TOP, CENTER_LEFT, frame, &bee_pos);
 
-    drawBee(game, bee_pos);
 
     if (game->canDraw) {
+        drawExplosion(game->renderer, frame);
+        drawFighter(game->renderer, fighter_pos);
+        drawBee(game->renderer, bee_pos);
         SDL_RenderDrawLine(game->renderer, SCREEN_WIDTH_PX / 2, 0,
                            SCREEN_WIDTH_PX / 2, SCREEN_HEIGHT_PX);
     }
