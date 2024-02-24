@@ -47,6 +47,7 @@ typedef struct _FRect {
     int w;
     int h;
     float radians;
+    float start_radians;
     bool init;
 } FRect;
 
@@ -155,7 +156,6 @@ bool
 enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FRect *rect)
 {
     const int padding = 50;
-    static float start_radians = 0;
 
     if (!(frame % 30 == 0)) return true;
     if (rect->init) {
@@ -165,7 +165,7 @@ enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FRect *rect)
             case TOP: rect->radians = 0; break;
         }
 
-        start_radians = rect->radians;
+        rect->start_radians = rect->radians;
 
         if (p1 == BOTTOM && p2 == LEFT) {
             rect->x = -padding - rect->w;
@@ -193,7 +193,7 @@ enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FRect *rect)
 
             float r2 = 0;
 
-            if (rect->radians - start_radians < M_PI_2) {
+            if (rect->radians - rect->start_radians < M_PI_2) {
                 rect->radians += .003f;
                 r2 = rect->radians;
             } else{
@@ -210,7 +210,7 @@ enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FRect *rect)
 
             float r2 = 0;
 
-            if (rect->radians - start_radians > -M_PI_4) {
+            if (rect->radians - rect->start_radians > -M_PI_4) {
                 rect->radians -= .002f;
                 r2 = rect->radians;
             } else {
