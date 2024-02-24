@@ -160,7 +160,7 @@ enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FRect *rect)
     if (init) {
 
         switch(p1) {
-            case BOTTOM: radians = M_PI / 2; break;
+            case BOTTOM: radians = M_PI_2; break;
             case TOP: radians = 0; break;
         }
 
@@ -192,7 +192,7 @@ enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FRect *rect)
 
             float r2 = 0;
 
-            if (radians - start_radians < (M_PI / 2)) {
+            if (radians - start_radians < (M_PI_2)) {
                 radians += .003f;
                 r2 = radians;
             } else{
@@ -209,7 +209,7 @@ enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FRect *rect)
 
             float r2 = 0;
 
-            if (radians - start_radians > -(M_PI / 4)) {
+            if (radians - start_radians > -(M_PI_4)) {
                 radians -= .002f;
                 r2 = radians;
             } else {
@@ -243,8 +243,8 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
 
     if (isEntering) 
         /* isEntering = enemyEntrance(BOTTOM, LEFT, frame, &bee_pos); */
-        /* isEntering = enemyEntrance(BOTTOM, RIGHT, frame, &bee_pos); */
-        isEntering = enemyEntrance(TOP, CENTER_LEFT, frame, &bee_pos);
+        isEntering = enemyEntrance(BOTTOM, RIGHT, frame, &bee_pos);
+        /* isEntering = enemyEntrance(TOP, CENTER_LEFT, frame, &bee_pos); */
 
 
     if (game->canDraw) {
