@@ -169,17 +169,17 @@ enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FRect *rect)
     static bool init = true;
 
     if (init) {
-        if (p1 == LEFT && p2 == BOTTOM) {
+        if (p1 == BOTTOM && p2 == LEFT) {
             rect->x = -padding - rect->w;
             rect->y = (float)SCREEN_HEIGHT_PX - rect->w - padding;
         }
 
-       if (p1 == RIGHT && p2 == BOTTOM) {
+       if (p1 == BOTTOM && p2 == RIGHT) {
             rect->x = SCREEN_WIDTH_PX + padding;
             rect->y = (float)SCREEN_HEIGHT_PX - rect->w - padding;
        }
 
-       if (p1 == CENTER_LEFT && p2 == BOTTOM) {
+       if (p1 == BOTTOM && p2 == CENTER_LEFT) {
             rect->x = SCREEN_WIDTH_PX + padding;
             rect->y = (float)SCREEN_HEIGHT_PX - rect->w - padding;
        }
@@ -188,12 +188,12 @@ enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FRect *rect)
     }
 
 
-    if (p2 == BOTTOM) {
+    if (p1 == BOTTOM) {
         static float radians = deg90;
 
         if (frame % 4 == 0) {
 
-            enemyMove(rect, p1 == RIGHT ? LEFT : RIGHT, UP, radians);
+            enemyMove(rect, p2 == RIGHT ? LEFT : RIGHT, UP, radians);
 
             if (radians < (M_PI / 2) + deg90) {
                 radians += .003f;
@@ -228,7 +228,7 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
     drawFighter(game->renderer, fighter_pos);
 
     if (isEntering) 
-        isEntering = enemyEntrance(RIGHT, BOTTOM, frame, &bee_pos);
+        isEntering = enemyEntrance(BOTTOM, LEFT,frame, &bee_pos);
 
     drawBee(game->renderer, bee_pos);
 
