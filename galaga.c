@@ -26,7 +26,7 @@ enum {COLOR_RED, COLOR_GREEN, COLOR_BLUE, COLOR_ORANGE, COLOR_GREY,
 
 enum {ENTER_BOTTOM};
 
-enum {ENTER_LEFT, ENTER_RIGHT};
+enum {LEFT, RIGHT};
 
 enum {UPDATE_MAIN};
 
@@ -153,22 +153,33 @@ drawExplosion(SDL_Renderer *renderer, uint64_t frame)
 
 
 void
-enemyMove(FPoint *point, float radians)
+enemyMove(FPoint *point, uint8_t pos, float radians)
 {
-    point->x += sinf(radians);
+    point->x += sinf(radians) * ((pos == LEFT) ? 1 : -1);
     point->y += cosf(radians);
 }
 
 bool
-enemyEntrance(uint8_t type, uint64_t frame, FPoint *point)
+enemyEntrance(uint8_t type, uint8_t pos, uint64_t frame, FPoint *point)
 {
     const float deg90 = (float)90 / (180.0f / M_PI);
     static bool init = true;
 
     if (init) {
-        point->x = -50,
-        point->y = (float)SCREEN_HEIGHT_PX - BEE_HEIGHT_PX - 10,
-        init = false;
+        switch(pos) {
+            case LEFT: {
+                point->x = -50,
+                point->y = (float)SCREEN_HEIGHT_PX - BEE_HEIGHT_PX - 10,
+                init = false;
+                break;
+            }
+            case RIGHT: {
+                point->x = SCREEN_WIDTH_PX - BEE_WIDTH_PX - 10,
+                point->y = (float)SCREEN_HEIGHT_PX - BEE_WIDTH_PX - 10,
+                init = false;
+                break;
+            }
+        }
     }
 
     switch(type) {
@@ -177,7 +188,7 @@ enemyEntrance(uint8_t type, uint64_t frame, FPoint *point)
             static float radians = deg90;
 
             if (frame % 4 == 0) {
-                enemyMove(point, radians);
+                enemyMove(point, pos, radians);
                 if (radians < (M_PI / 2) + deg90) {
                     radians += .003f;
                 } else{
@@ -188,13 +199,10 @@ enemyEntrance(uint8_t type, uint64_t frame, FPoint *point)
                     }
                 }
             }
-
-
         }
     }
 
     return true;
-
 }
 
 static uint8_t
@@ -214,7 +222,7 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
     drawFighter(game->renderer, fighter_pos);
 
     if (isEntering) 
-        isEntering = enemyEntrance(ENTER_BOTTOM, frame, &bee_pos);
+        isEntering = enemyEntrance(ENTER_BOTTOM, LEFT, frame, &bee_pos);
 
     drawBee(game->renderer, bee_pos);
 
