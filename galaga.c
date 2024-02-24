@@ -171,7 +171,7 @@ enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FRect *rect)
     static float radians = 0;
     static float start_radians = deg90;
 
-    if (!(frame % 4 == 0)) return true;
+    if (!(frame % 15 == 0)) return true;
 
     if (init) {
         if (p1 == BOTTOM) radians = deg90;
@@ -294,13 +294,13 @@ Game_Init(Game *game)
 }
 
 void
-Game_Update(Game *game, const uint32_t fps)
+Game_Update(Game *game, const uint32_t lps, const uint32_t fps)
 {
     uint64_t frame = 0;
     bool keydown = false;
     uint8_t update_id = 0;
     Update_callback update;
-    float mspd = (1.0f / (float)fps) * 1000.0f;
+    float mspd = (1.0f / (float)lps) * 1000.0f;
 
     SDL_Rect background_rect = {
         .x = 0,
@@ -350,7 +350,8 @@ Game_Update(Game *game, const uint32_t fps)
             SDL_Delay(elapsed_time);
         } 
 
-        SDL_RenderPresent(game->renderer);
+        if (frame % (lps / fps) == 0)
+            SDL_RenderPresent(game->renderer);
         frame++;
     }
 }
@@ -369,6 +370,6 @@ int main(void)
 {
     Game game;
     Game_Init(&game);
-    Game_Update(&game, 1000);
+    Game_Update(&game, 1200, 60);
     Game_Quit(&game);
 }
