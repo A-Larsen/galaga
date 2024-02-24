@@ -13,6 +13,8 @@
 #define FIGHTER_HEIGHT_PX 58
 #define BEE_WIDTH_PX 40
 #define BEE_HEIGHT_PX 40
+#define UP TOP
+#define DOWN BOTTOM
 
 #define END(check, str1, str2) \
     if (check) { \
@@ -24,7 +26,8 @@
 enum {COLOR_RED, COLOR_GREEN, COLOR_BLUE, COLOR_ORANGE, COLOR_GREY,
       COLOR_WHITE, COLOR_BLACK, COLOR_SIZE};
 
-enum {UP, DOWN, LEFT, RIGHT, CENTER_LEFT, CENTER_RIGHT};
+enum {TOP, BOTTOM, LEFT, RIGHT, CENTER_LEFT, CENTER_RIGHT};
+
 
 enum {UPDATE_MAIN};
 
@@ -166,12 +169,12 @@ enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FPoint *point)
     static bool init = true;
 
     if (init) {
-        if (p1 == LEFT && p2 == UP) {
+        if (p1 == LEFT && p2 == BOTTOM) {
             point->x = -hidden - BEE_WIDTH_PX;
             point->y = (float)SCREEN_HEIGHT_PX - BEE_HEIGHT_PX - padding;
         }
 
-       if (p1 == RIGHT && p2 == UP) {
+       if (p1 == RIGHT && p2 == BOTTOM) {
             point->x = SCREEN_WIDTH_PX + hidden;
             point->y = (float)SCREEN_HEIGHT_PX - BEE_WIDTH_PX - padding;
         }
@@ -180,12 +183,12 @@ enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FPoint *point)
     }
 
 
-    if (p2 == UP) {
+    if (p2 == BOTTOM) {
         static float radians = deg90;
 
         if (frame % 4 == 0) {
 
-            enemyMove(point, p1 == RIGHT ? LEFT : RIGHT, p2, radians);
+            enemyMove(point, p1 == RIGHT ? LEFT : RIGHT, UP, radians);
 
             if (radians < (M_PI / 2) + deg90) {
                 radians += .003f;
@@ -219,7 +222,7 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
     drawFighter(game->renderer, fighter_pos);
 
     if (isEntering) 
-        isEntering = enemyEntrance(LEFT, UP, frame, &bee_pos);
+        isEntering = enemyEntrance(LEFT, BOTTOM, frame, &bee_pos);
 
     drawBee(game->renderer, bee_pos);
 
