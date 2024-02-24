@@ -144,10 +144,10 @@ drawExplosion(SDL_Renderer *renderer, uint64_t frame)
     setColor(renderer , (int)i % 4 ? COLOR_WHITE : COLOR_RED);
 
     for (uint8_t j = 0; j < i; ++j) {
-        drawNoiseCircle(renderer, center, 2, j, 4);
+        drawNoiseCircle(renderer, center, 3, j, 4);
     }
 
-    i += .2f;
+    i += .18f;
     return true;
 }
 
