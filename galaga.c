@@ -24,7 +24,9 @@
 enum {COLOR_RED, COLOR_GREEN, COLOR_BLUE, COLOR_ORANGE, COLOR_GREY,
       COLOR_WHITE, COLOR_BLACK, COLOR_SIZE};
 
-enum {ENTER_BOTTOM};
+/* enum {ENTER_BOTTOM_LEFT, ENTER_BOTTOM_RIGHT}; */
+
+enum {UP, DOWN};
 
 enum {LEFT, RIGHT};
 
@@ -153,51 +155,48 @@ drawExplosion(SDL_Renderer *renderer, uint64_t frame)
 
 
 void
-enemyMove(FPoint *point, uint8_t pos, float radians)
+enemyMove(FPoint *point, uint8_t p1, uint8_t p2, float radians)
 {
-    point->x += sinf(radians) * ((pos == LEFT) ? 1 : -1);
-    point->y += cosf(radians);
+    point->x += sinf(radians) * ((p1 == RIGHT) ? 1 : -1);
+    point->y += cosf(radians) * ((p2 == UP)  ? 1 : -1);
 }
 
 bool
-enemyEntrance(uint8_t type, uint8_t pos, uint64_t frame, FPoint *point)
+enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FPoint *point)
 {
     const float deg90 = (float)90 / (180.0f / M_PI);
-    const int padding= 10;
+    const int padding = 10;
     static bool init = true;
 
     if (init) {
-        switch(pos) {
-            case LEFT: {
-                point->x = -50;
-                point->y = (float)SCREEN_HEIGHT_PX - BEE_HEIGHT_PX - padding;
-                break;
-            }
-            case RIGHT: {
-                point->x = SCREEN_WIDTH_PX - BEE_WIDTH_PX - 10;
-                point->y = (float)SCREEN_HEIGHT_PX - BEE_WIDTH_PX - padding;
-                break;
-            }
+        if (p1 == LEFT && p2 == UP) {
+            point->x = -50;
+            point->y = (float)SCREEN_HEIGHT_PX - BEE_HEIGHT_PX - padding;
+        }
+
+       if (p1 == RIGHT && p2 == UP) {
+            point->x = SCREEN_WIDTH_PX - BEE_WIDTH_PX - 10;
+            point->y = (float)SCREEN_HEIGHT_PX - BEE_WIDTH_PX - padding;
         }
 
         init = false;
     }
 
-    switch(type) {
-        case ENTER_BOTTOM: {
 
-            static float radians = deg90;
+    if ((p1 == RIGHT || p1 == LEFT) && p2 == UP) {
 
-            if (frame % 4 == 0) {
-                enemyMove(point, pos, radians);
-                if (radians < (M_PI / 2) + deg90) {
-                    radians += .003f;
-                } else{
-                    radians += .016f;
-                    if (radians >= (2.5 * M_PI) + deg90) {
-                        init = true;
-                        return false;
-                    }
+        static float radians = deg90;
+
+        if (frame % 4 == 0) {
+
+            enemyMove(point, p1 == RIGHT ? LEFT : RIGHT, p2, radians);
+            if (radians < (M_PI / 2) + deg90) {
+                radians += .003f;
+            } else{
+                radians += .016f;
+                if (radians >= (2.5 * M_PI) + deg90) {
+                    init = true;
+                    return false;
                 }
             }
         }
@@ -223,7 +222,7 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
     drawFighter(game->renderer, fighter_pos);
 
     if (isEntering) 
-        isEntering = enemyEntrance(ENTER_BOTTOM, LEFT, frame, &bee_pos);
+        isEntering = enemyEntrance(LEFT, UP, frame, &bee_pos);
 
     drawBee(game->renderer, bee_pos);
 
