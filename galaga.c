@@ -216,7 +216,12 @@ enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FRect *rect)
         }
         case TOP: {
             enemyMove(rect, p2 == LEFT ? 0 : 1, 0, radians);
-            radians -= .002f;
+
+            if (radians - start_radians > -(M_PI / 4)) {
+                radians -= .002f;
+            } else {
+                radians -= .016f;
+            }
             break;
         }
     }
