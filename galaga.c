@@ -206,7 +206,7 @@ enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FRect *rect)
             break;
         }
         case TOP: {
-            enemyMove(rect, p2 == LEFT ? 0 : 1, 0, rect->radians);
+            enemyMove(rect, p2 == CENTER_LEFT ? 1 : 0, 0, rect->radians);
 
             float r2 = 0;
 
@@ -247,7 +247,7 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
 
 
     if (b1IsEntering) {
-        b1IsEntering = enemyEntrance(BOTTOM, RIGHT, frame, &bee1_pos);
+        b1IsEntering = enemyEntrance(TOP, CENTER_LEFT, frame, &bee1_pos);
     }
 
     if (b2IsEntering) {
