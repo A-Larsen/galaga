@@ -93,7 +93,7 @@ setColor(SDL_Renderer *renderer, uint8_t color)
 void
 drawFormationGrid(SDL_Renderer *renderer, bool *formation)
 {
-    uint8_t space = 20;
+    static uint8_t space = 50;
     SDL_Point pos = {.x = 10, .y = 10};
 
     for (uint8_t y = 0; y < FORMATION_HEIGHT; ++y) {
@@ -105,7 +105,6 @@ drawFormationGrid(SDL_Renderer *renderer, bool *formation)
                 .h = ENEMY_HEIGHT_PX,
             };
             SDL_RenderDrawRect(renderer, &rect);
-            /* uint8_t i = y * FORMATION_HEIGHT + x; */
         }
     }
 }
