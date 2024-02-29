@@ -94,7 +94,9 @@ void
 drawFormationGrid(SDL_Renderer *renderer, bool *formation)
 {
     static uint8_t space = 50;
-    SDL_Point pos = {.x = 10, .y = 10};
+    static float i = 0;
+    static SDL_Point pos = {.x = 25, .y = 10};
+    space = 50 + sin(i += .004f) * 4;
 
     for (uint8_t y = 0; y < FORMATION_HEIGHT; ++y) {
         for (uint8_t x = 0; x < FORMATION_WIDTH; ++x) {
