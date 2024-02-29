@@ -31,6 +31,8 @@ enum {COLOR_RED, COLOR_GREEN, COLOR_BLUE, COLOR_ORANGE, COLOR_GREY,
 
 enum {TOP, BOTTOM, LEFT, RIGHT, CENTER_LEFT, CENTER_RIGHT};
 
+enum {ENEMY_BEE, ENEMY_BUTTERFLY, ENEMY_BOSS};
+
 enum {UPDATE_MAIN};
 
 typedef struct _Game {
@@ -233,6 +235,17 @@ enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FRect *rect)
     }
 
     return true;
+}
+
+void
+pickFormationPosition(uint8_t type)
+{
+    switch(type) {
+        case ENEMY_BEE: {
+            // find random number 1-10 and 1-2
+        }
+    }
+
 }
 
 static uint8_t
