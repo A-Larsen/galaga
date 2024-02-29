@@ -14,8 +14,7 @@
 #define SCREEN_HEIGHT_PX 800U
 #define FIGHTER_WIDTH_PX 45
 #define FIGHTER_HEIGHT_PX 58
-#define ENEMY_WIDTH_PX 40
-#define ENEMY_HEIGHT_PX 40
+#define ENEMY_SIZE_PX 40
 #define UP TOP
 #define DOWN BOTTOM
 #define FORMATION_WIDTH 10
@@ -95,16 +94,22 @@ drawFormationGrid(SDL_Renderer *renderer, bool *formation)
 {
     static uint8_t space = 50;
     static float i = 0;
-    static SDL_Point pos = {.x = 25, .y = 10};
+    static SDL_Point pos = {0};
     space = 50 + sin(i += .004f) * 4;
+
+    uint8_t width = (space * FORMATION_WIDTH);
+    uint8_t height = ((ENEMY_SIZE_PX + space) * FORMATION_HEIGHT);
+    pos.x = -(space * 4) + (SCREEN_WIDTH_PX / 2.2);
+    pos.y = 10;
+    /* pos.y = 10 - (width / 2); */
 
     for (uint8_t y = 0; y < FORMATION_HEIGHT; ++y) {
         for (uint8_t x = 0; x < FORMATION_WIDTH; ++x) {
             SDL_Rect rect = {
                 .x = pos.x + x * space,
                 .y = pos.y + y * space,
-                .w = ENEMY_WIDTH_PX,
-                .h = ENEMY_HEIGHT_PX,
+                .w = ENEMY_SIZE_PX,
+                .h = ENEMY_SIZE_PX,
             };
             SDL_RenderDrawRect(renderer, &rect);
         }
@@ -132,8 +137,8 @@ drawBee(SDL_Renderer *renderer, FRect point)
     SDL_Rect rect = {
         .x = point.x,
         .y = point.y,
-        .w = ENEMY_WIDTH_PX,
-        .h = ENEMY_HEIGHT_PX
+        .w = ENEMY_SIZE_PX,
+        .h = ENEMY_SIZE_PX
     };
 
     setColor(renderer, COLOR_BLUE);
@@ -294,11 +299,11 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
         init = false;
     }
 
-    static FRect bee1_pos = {.x = 0, .y = 0, .w = ENEMY_WIDTH_PX,
-                            .h = ENEMY_HEIGHT_PX, .radians = 0, .init = true};
+    static FRect bee1_pos = {.x = 0, .y = 0, .w = ENEMY_SIZE_PX,
+                            .h = ENEMY_SIZE_PX, .radians = 0, .init = true};
 
-    static FRect bee2_pos = {.x = 0, .y = 0, .w = ENEMY_WIDTH_PX,
-                            .h = ENEMY_HEIGHT_PX, .radians = 0, .init = true};
+    static FRect bee2_pos = {.x = 0, .y = 0, .w = ENEMY_SIZE_PX,
+                            .h = ENEMY_SIZE_PX, .radians = 0, .init = true};
 
     static SDL_Point fighter_pos = {
         .x = 10,
