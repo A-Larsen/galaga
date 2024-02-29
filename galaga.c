@@ -99,7 +99,8 @@ drawFormationGrid(SDL_Renderer *renderer, bool *formation)
 
     float width = ((float)space * (float)FORMATION_WIDTH);
     uint8_t height = ((ENEMY_SIZE_PX + space) * FORMATION_HEIGHT);
-    pos.x = space + ((float)SCREEN_WIDTH_PX / 2.0f) - (width / 2.0f) -space;
+    /* pos.x = space + ((float)SCREEN_WIDTH_PX / 2.0f) - (width / 2.0f) -space ; */
+    pos.x = space + ((space - ENEMY_SIZE_PX) / 2) + ((float)SCREEN_WIDTH_PX / 2.0f) - (width / 2.0f) -space ;
     pos.y = 10;
     /* pos.y = 10 - (width / 2); */
 
