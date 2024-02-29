@@ -5,6 +5,7 @@
 #include <SDL2/SDL_image.h>
 #include <assert.h>
 #include <stdbool.h>
+#include <time.h>
 
 #define TAU ((float)(M_PI * 2.0f))
 #define M_3PI ((float)(M_PI * 3.0f))
@@ -259,7 +260,13 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
 {
     static bool b1IsEntering = true;
     static bool b2IsEntering = true;
+    static bool pickedPosition = false;
+    static bool init = true;
 
+    if (init) {
+        srand(time(NULL));
+        init = false;
+    }
 
     static FRect bee1_pos = {.x = 0, .y = 0, .w = BEE_WIDTH_PX,
                             .h = BEE_HEIGHT_PX, .radians = 0, .init = true};
@@ -279,6 +286,9 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
 
     if (b2IsEntering) {
         b2IsEntering = enemyEntrance(BOTTOM, LEFT, frame, &bee2_pos);
+    } else if (!pickedPosition) {
+        printf("%d\n", pickFormationPosition(ENEMY_BEE));
+        pickedPosition = true;
     }
 
 
