@@ -72,6 +72,10 @@ static bool formation[FORMATION_SIZE]; // 10 x 5
 // row 4  (30-39)  bees
 // row 5: (40-49)  bees
 
+int interpolate(int y, int s, SDL_Point p1, SDL_Point p2) {
+    return  s + (p2.x- p1.x) * (y - p1.y) / (p2.y - p1.y);
+}
+
 void
 setColor(SDL_Renderer *renderer, uint8_t color)
 {
@@ -90,32 +94,74 @@ setColor(SDL_Renderer *renderer, uint8_t color)
 }
 
 void
-drawFormationGrid(SDL_Renderer *renderer, bool *formation)
+getGridPosition(bool *formation, uint64_t frame, SDL_Point *point, uint8_t x, uint8_t y)
 {
     static uint8_t space = 50;
     static float i = 0;
-    static SDL_Point pos = {0};
-    space = 50 + sin(i += .004f) * 4;
+    static SDL_Point start = {0};
+    if (frame % 1000 == 0) i += .01f;
+    space = 50 + sin(i) * 4;
 
     float width = ((float)space * (float)FORMATION_WIDTH);
     uint8_t height = ((ENEMY_SIZE_PX + space) * FORMATION_HEIGHT);
-    /* pos.x = space + ((float)SCREEN_WIDTH_PX / 2.0f) - (width / 2.0f) -space ; */
-    pos.x = space + ((space - ENEMY_SIZE_PX) / 2) + ((float)SCREEN_WIDTH_PX / 2.0f) - (width / 2.0f) -space ;
-    pos.y = 10;
-    /* pos.y = 10 - (width / 2); */
+
+    start.x = space + ((space - ENEMY_SIZE_PX) / 2.0f) +
+            ((float)SCREEN_WIDTH_PX / 2.0f) - (width / 2.0f) -space;
+
+    start.y = 10;
+
+    point->x = start.x + x * space;
+    point->y = start.y + y * space;
+}
+
+void
+drawFormationGrid(SDL_Renderer *renderer, uint64_t frame, bool *formation)
+{
 
     for (uint8_t y = 0; y < FORMATION_HEIGHT; ++y) {
         for (uint8_t x = 0; x < FORMATION_WIDTH; ++x) {
+            SDL_Point point;
+            getGridPosition(formation, frame, &point, x, y);
             SDL_Rect rect = {
-                .x = pos.x + x * space,
-                .y = pos.y + y * space,
+                .x = point.x,
+                .y = point.y,
                 .w = ENEMY_SIZE_PX,
                 .h = ENEMY_SIZE_PX,
             };
+            
             SDL_RenderDrawRect(renderer, &rect);
         }
     }
 }
+
+/* void */
+/* drawFormationGrid(SDL_Renderer *renderer, bool *formation) */
+/* { */
+/*     static uint8_t space = 50; */
+/*     static float i = 0; */
+/*     static SDL_Point pos = {0}; */
+/*     space = 50 + sin(i += .004f) * 4; */
+
+/*     float width = ((float)space * (float)FORMATION_WIDTH); */
+/*     uint8_t height = ((ENEMY_SIZE_PX + space) * FORMATION_HEIGHT); */
+
+/*     pos.x = space + ((space - ENEMY_SIZE_PX) / 2.0f) + */
+/*             ((float)SCREEN_WIDTH_PX / 2.0f) - (width / 2.0f) -space; */
+
+/*     pos.y = 10; */
+
+/*     for (uint8_t y = 0; y < FORMATION_HEIGHT; ++y) { */
+/*         for (uint8_t x = 0; x < FORMATION_WIDTH; ++x) { */
+/*             SDL_Rect rect = { */
+/*                 .x = pos.x + x * space, */
+/*                 .y = pos.y + y * space, */
+/*                 .w = ENEMY_SIZE_PX, */
+/*                 .h = ENEMY_SIZE_PX, */
+/*             }; */
+/*             SDL_RenderDrawRect(renderer, &rect); */
+/*         } */
+/*     } */
+/* } */
 
 void
 drawFighter(SDL_Renderer *renderer, SDL_Point point)
@@ -331,7 +377,7 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
         drawBee(game->renderer, bee2_pos);
         SDL_RenderDrawLine(game->renderer, SCREEN_WIDTH_PX / 2, 0,
                            SCREEN_WIDTH_PX / 2, SCREEN_HEIGHT_PX);
-        drawFormationGrid(game->renderer, formation);
+        drawFormationGrid(game->renderer, frame, formation);
     }
 
     return UPDATE_MAIN;
