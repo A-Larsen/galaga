@@ -16,8 +16,9 @@
 #define BEE_HEIGHT_PX 40
 #define UP TOP
 #define DOWN BOTTOM
-#define FORMATION_WIDTH 15
+#define FORMATION_WIDTH 10
 #define FORMATION_HEIGHT 5
+#define FORMATION_SIZE 50
 
 #define END(check, str1, str2) \
     if (check) { \
@@ -57,7 +58,7 @@ typedef struct _FRect {
 typedef uint8_t (*Update_callback)(Game *game, uint64_t frame, SDL_KeyCode key,
                                    bool keydown);
 
-static bool formation[50]; // 10 x 5
+static bool formation[FORMATION_SIZE]; // 10 x 5
 // row 1: boss
 // row 2: butterfly
 // row 3: butterfly
@@ -242,7 +243,8 @@ pickFormationPosition(uint8_t type)
 {
     switch(type) {
         case ENEMY_BEE: {
-            // find random number 1-10 and 1-2
+            uint8_t x = (float)((float)rand() / (float)RAND_MAX) * FORMATION_WIDTH;
+            uint8_t y = ((float)((float)rand() / (float)RAND_MAX) * 2) + 3;
         }
     }
 
