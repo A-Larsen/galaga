@@ -60,11 +60,11 @@ typedef uint8_t (*Update_callback)(Game *game, uint64_t frame, SDL_KeyCode key,
                                    bool keydown);
 
 static bool formation[FORMATION_SIZE]; // 10 x 5
-// row 1  (0-5)    boss
-// row 2  (6-11)   butterfly
-// row 3  (12-17)  butterfly
-// row 4  (18-23)  bees
-// row 5: (25-29)  bees
+// row 1  (0-9)    boss
+// row 2  (10-19)   butterfly
+// row 3  (20-29)  butterfly
+// row 4  (30-39)  bees
+// row 5: (40-49)  bees
 
 void
 setColor(SDL_Renderer *renderer, uint8_t color)
@@ -242,13 +242,11 @@ enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FRect *rect)
 int
 pickFormationPosition(uint8_t type)
 {
-    uint8_t x = (float)((float)rand() / (float)RAND_MAX) * FORMATION_WIDTH;
-    uint8_t r = (float)((float)rand() / (float)RAND_MAX);
+    float r = (float)rand() / (float)RAND_MAX;
 
     switch(type) {
         case ENEMY_BEE: {
-            uint8_t y = r * 2 + 3;
-            return y * FORMATION_HEIGHT + x;
+            return r * ((FORMATION_WIDTH * 2) - 1) + (FORMATION_WIDTH * 3);
         }
     }
 
