@@ -56,6 +56,11 @@ typedef uint8_t (*Update_callback)(Game *game, uint64_t frame, SDL_KeyCode key,
                                    bool keydown);
 
 static bool formation[50]; // 10 x 5
+// row 1: boss
+// row 2: butterfly
+// row 3: butterfly
+// row 4: bees
+// row 5: bees
 
 void
 setColor(SDL_Renderer *renderer, uint8_t color)
