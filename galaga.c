@@ -1,3 +1,4 @@
+#include <SDL2/SDL_render.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <SDL2/SDL.h>
@@ -13,13 +14,19 @@
 #define SCREEN_HEIGHT_PX 800U
 #define FIGHTER_WIDTH_PX 45
 #define FIGHTER_HEIGHT_PX 58
-#define BEE_WIDTH_PX 40
-#define BEE_HEIGHT_PX 40
+#define ENEMY_WIDTH_PX 40
+#define ENEMY_HEIGHT_PX 40
 #define UP TOP
 #define DOWN BOTTOM
 #define FORMATION_WIDTH 10
 #define FORMATION_HEIGHT 5
 #define FORMATION_SIZE 50
+#define ENEMY_BOSS_START 0
+#define ENEMY_BOSS_END 9
+#define ENEMY_BUTTERFLY_START 10
+#define ENEMY_BUTTERFLY_END 29
+#define ENEMY_BEE_START 30
+#define ENEMY_BEE_END 39
 
 #define END(check, str1, str2) \
     if (check) { \
@@ -61,7 +68,7 @@ typedef uint8_t (*Update_callback)(Game *game, uint64_t frame, SDL_KeyCode key,
 
 static bool formation[FORMATION_SIZE]; // 10 x 5
 // row 1  (0-9)    boss
-// row 2  (10-19)   butterfly
+// row 2  (10-19)  butterfly
 // row 3  (20-29)  butterfly
 // row 4  (30-39)  bees
 // row 5: (40-49)  bees
@@ -81,6 +88,26 @@ setColor(SDL_Renderer *renderer, uint8_t color)
 
     SDL_SetRenderDrawColor(renderer, colors[color].r, colors[color].g,
                            colors[color].b, colors[color].a);
+}
+
+void
+drawFormationGrid(SDL_Renderer *renderer, bool *formation)
+{
+    uint8_t space = 20;
+    SDL_Point pos = {.x = 10, .y = 10};
+
+    for (uint8_t y = 0; y < FORMATION_HEIGHT; ++y) {
+        for (uint8_t x = 0; x < FORMATION_WIDTH; ++x) {
+            SDL_Rect rect = {
+                .x = pos.x + x * space,
+                .y = pos.y + y * space,
+                .w = ENEMY_WIDTH_PX,
+                .h = ENEMY_HEIGHT_PX,
+            };
+            SDL_RenderDrawRect(renderer, &rect);
+            /* uint8_t i = y * FORMATION_HEIGHT + x; */
+        }
+    }
 }
 
 void
@@ -104,8 +131,8 @@ drawBee(SDL_Renderer *renderer, FRect point)
     SDL_Rect rect = {
         .x = point.x,
         .y = point.y,
-        .w = BEE_WIDTH_PX,
-        .h = BEE_HEIGHT_PX
+        .w = ENEMY_WIDTH_PX,
+        .h = ENEMY_HEIGHT_PX
     };
 
     setColor(renderer, COLOR_BLUE);
@@ -266,11 +293,11 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
         init = false;
     }
 
-    static FRect bee1_pos = {.x = 0, .y = 0, .w = BEE_WIDTH_PX,
-                            .h = BEE_HEIGHT_PX, .radians = 0, .init = true};
+    static FRect bee1_pos = {.x = 0, .y = 0, .w = ENEMY_WIDTH_PX,
+                            .h = ENEMY_HEIGHT_PX, .radians = 0, .init = true};
 
-    static FRect bee2_pos = {.x = 0, .y = 0, .w = BEE_WIDTH_PX,
-                            .h = BEE_HEIGHT_PX, .radians = 0, .init = true};
+    static FRect bee2_pos = {.x = 0, .y = 0, .w = ENEMY_WIDTH_PX,
+                            .h = ENEMY_HEIGHT_PX, .radians = 0, .init = true};
 
     static SDL_Point fighter_pos = {
         .x = 10,
@@ -297,6 +324,7 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
         drawBee(game->renderer, bee2_pos);
         SDL_RenderDrawLine(game->renderer, SCREEN_WIDTH_PX / 2, 0,
                            SCREEN_WIDTH_PX / 2, SCREEN_HEIGHT_PX);
+        drawFormationGrid(game->renderer, formation);
     }
 
     return UPDATE_MAIN;
