@@ -72,8 +72,9 @@ static bool formation[FORMATION_SIZE]; // 10 x 5
 // row 4  (30-39)  bees
 // row 5: (40-49)  bees
 
-int interpolate(int y, int s, SDL_Point p1, SDL_Point p2) {
-    return  s + (p2.x- p1.x) * (y - p1.y) / (p2.y - p1.y);
+void interpolate(float *x, int y, int s, SDL_Point p1, SDL_Point p2) {
+    if ((p2.y - p1.y) == 0) return;
+    *x = s + (p2.x- p1.x) * (y - p1.y) / (p2.y - p1.y);
 }
 
 void
@@ -99,7 +100,7 @@ getGridPosition(bool *formation, uint64_t frame, SDL_Point *point, uint8_t x, ui
     static uint8_t space = 50;
     static float i = 0;
     static SDL_Point start = {0};
-    uint64_t update_rate = 10000;
+    uint64_t update_rate = 30000;
 
     space = 50 + sin(((frame % update_rate) / (float)update_rate) * TAU) * 4;
 
@@ -133,6 +134,30 @@ drawFormationGrid(SDL_Renderer *renderer, uint64_t frame, bool *formation)
             SDL_RenderDrawRect(renderer, &rect);
         }
     }
+}
+
+bool
+enemyToFormation(FRect *point, uint64_t frame, FRect source,
+                 SDL_Point destination)
+{
+
+    SDL_Point a;
+    getGridPosition(formation, frame, &a, destination.x, destination.y);
+
+    if (point->y <= a.y) {
+        return false;
+    }
+
+    SDL_Point b = {
+        .x = source.x,
+        .y = source.y
+    };
+
+    interpolate(&point->x, point->y, source.x, b, a);
+    
+    point->y -= .01f;
+
+    return true;
 }
 
 void
@@ -291,7 +316,7 @@ enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FRect *rect)
     return true;
 }
 
-int
+uint8_t
 pickFormationPosition(uint8_t type)
 {
     float r = (float)rand() / (float)RAND_MAX;
@@ -299,10 +324,11 @@ pickFormationPosition(uint8_t type)
     switch(type) {
         case ENEMY_BEE: {
             return r * ((FORMATION_WIDTH * 2) - 1) + (FORMATION_WIDTH * 3);
+            /* point->x = r * ((FORMATION_WIDTH * 2) - 1); */
+            /* point->y = (FORMATION_WIDTH * 3); */
         }
     }
-
-    return -1;
+    return 0;
 }
 
 static uint8_t
@@ -329,16 +355,28 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
         .y = SCREEN_HEIGHT_PX - FIGHTER_HEIGHT_PX - 10
     };
 
-
     if (b1IsEntering) {
         b1IsEntering = enemyEntrance(BOTTOM, RIGHT, frame, &bee1_pos);
     }
 
+    /* SDL_Point source = {0}; */
+    static SDL_Point format_pos = {0};
+    static FRect source;
+    static bool toFormationUpdate = false;
     if (b2IsEntering) {
         b2IsEntering = enemyEntrance(BOTTOM, LEFT, frame, &bee2_pos);
     } else if (!pickedPosition) {
-        printf("%d\n", pickFormationPosition(ENEMY_BEE));
+        SDL_Point p;
+        uint8_t position = pickFormationPosition(ENEMY_BEE);
+        format_pos.x = position % FORMATION_WIDTH;
+        format_pos.y = floor((float)position / (float)FORMATION_WIDTH);
+        printf("position: %d\n", position);
+        printf("x: %d, y: %d\n", format_pos.x, format_pos.y);
+        memcpy(&source, &bee2_pos, sizeof(FRect));
         pickedPosition = true;
+        toFormationUpdate = true;
+    } else if (toFormationUpdate){
+        toFormationUpdate = enemyToFormation(&bee2_pos, frame, source, format_pos);
     }
 
 
