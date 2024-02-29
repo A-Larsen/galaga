@@ -16,6 +16,8 @@
 #define BEE_HEIGHT_PX 40
 #define UP TOP
 #define DOWN BOTTOM
+#define FORMATION_WIDTH 15
+#define FORMATION_HEIGHT 5
 
 #define END(check, str1, str2) \
     if (check) { \
@@ -28,7 +30,6 @@ enum {COLOR_RED, COLOR_GREEN, COLOR_BLUE, COLOR_ORANGE, COLOR_GREY,
       COLOR_WHITE, COLOR_BLACK, COLOR_SIZE};
 
 enum {TOP, BOTTOM, LEFT, RIGHT, CENTER_LEFT, CENTER_RIGHT};
-
 
 enum {UPDATE_MAIN};
 
@@ -53,6 +54,8 @@ typedef struct _FRect {
 
 typedef uint8_t (*Update_callback)(Game *game, uint64_t frame, SDL_KeyCode key,
                                    bool keydown);
+
+static bool formation[50]; // 10 x 5
 
 void
 setColor(SDL_Renderer *renderer, uint8_t color)
@@ -247,7 +250,7 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
 
 
     if (b1IsEntering) {
-        b1IsEntering = enemyEntrance(TOP, CENTER_LEFT, frame, &bee1_pos);
+        b1IsEntering = enemyEntrance(BOTTOM, RIGHT, frame, &bee1_pos);
     }
 
     if (b2IsEntering) {
