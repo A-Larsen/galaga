@@ -241,10 +241,12 @@ enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FRect *rect)
 void
 pickFormationPosition(uint8_t type)
 {
+    uint8_t x = (float)((float)rand() / (float)RAND_MAX) * FORMATION_WIDTH;
+    uint8_t r = (float)((float)rand() / (float)RAND_MAX);
+
     switch(type) {
         case ENEMY_BEE: {
-            uint8_t x = (float)((float)rand() / (float)RAND_MAX) * FORMATION_WIDTH;
-            uint8_t y = ((float)((float)rand() / (float)RAND_MAX) * 2) + 3;
+            uint8_t y = r * 2 + 3;
         }
     }
 
