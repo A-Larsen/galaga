@@ -1,12 +1,12 @@
-#include <SDL2/SDL_render.h>
 #include <stdio.h>
 #include <stdint.h>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
-#include <SDL2/SDL_image.h>
+#include "SDL2/SDL.h"
+#include "SDL2/SDL_ttf.h"
+#include "SDL2/SDL_image.h"
 #include <assert.h>
 #include <stdbool.h>
 #include <time.h>
+#include <math.h>
 
 #define TAU ((float)(M_PI * 2.0f))
 #define M_3PI ((float)(M_PI * 3.0f))
@@ -26,6 +26,8 @@
 #define ENEMY_BUTTERFLY_END 29
 #define ENEMY_BEE_START 30
 #define ENEMY_BEE_END 39
+
+#define SDL_main main
 
 #define END(check, str1, str2) \
     if (check) { \
@@ -501,6 +503,6 @@ int main(void)
 {
     Game game;
     Game_Init(&game);
-    Game_Update(&game, 1200, 60);
+    Game_Update(&game, 1010, 120);
     Game_Quit(&game);
 }

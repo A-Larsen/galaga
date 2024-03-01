@@ -1,4 +1,4 @@
-LIBS = -lSDL2 -lSDL2_image -lSDL2_ttf -lm
+LIBS = ./libs/SDL2.lib ./libs/SDL2_image.lib ./libs/SDL2_ttf.lib
 
 PROG = galaga
 
