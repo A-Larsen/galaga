@@ -61,6 +61,12 @@ typedef struct _Bee {
 typedef struct _Grid {
     uint8_t space;
     SDL_Point start;
+    bool formation[FORMATION_SIZE]; // 10 x 5
+    // row 1  (0-9)    boss
+    // row 2  (10-19)  butterfly
+    // row 3  (20-29)  butterfly
+    // row 4  (30-39)  bees
+    // row 5: (40-49)  bees
 } Grid;
 
 typedef struct _Game {
@@ -75,13 +81,6 @@ typedef struct _Game {
 
 typedef uint8_t (*Update_callback)(Game *game, uint64_t frame, SDL_KeyCode key,
                                    bool keydown);
-
-/* static bool formation[FORMATION_SIZE]; // 10 x 5 */
-// row 1  (0-9)    boss
-// row 2  (10-19)  butterfly
-// row 3  (20-29)  butterfly
-// row 4  (30-39)  bees
-// row 5: (40-49)  bees
 
 void interpolate(float *x, int y, int s, SDL_Point p1, SDL_Point p2) {
     if ((p2.y - p1.y) == 0) return;
@@ -357,12 +356,13 @@ pickFormationPosition(uint8_t type)
 }
 
 void
-BeeEnter(Bee *bee, Grid grid, uint8_t enter, uint64_t frame) {
+BeeEnter(Bee *bee, Grid *grid, uint8_t enter, uint64_t frame) {
     if (bee->entering) {
         bee->entering = enemyEntrance(BOTTOM, enter, frame, &bee->position);
     } else if (!bee->pickedPosition) {
         SDL_Point p;
         uint8_t position = pickFormationPosition(ENEMY_BEE);
+        grid->formation[position] = 1;
         bee->formation.x = position % FORMATION_WIDTH;
         bee->formation.y = floor((float)position / (float)FORMATION_WIDTH);
         printf("position: %d\n", position);
@@ -370,7 +370,7 @@ BeeEnter(Bee *bee, Grid grid, uint8_t enter, uint64_t frame) {
         memcpy(&bee->source, &bee->position, sizeof(FPoint));
         bee->pickedPosition = true;
     } else{
-        enemyToFormation(&bee->position, grid, frame, bee->source,
+        enemyToFormation(&bee->position, *grid, frame, bee->source,
                          bee->formation);
     }
 }
@@ -397,8 +397,8 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
     };
 
     // make sure left and right enemy do not choose the same spot
-    BeeEnter(&bee1, game->grid, RIGHT, frame);
-    BeeEnter(&bee2, game->grid, LEFT, frame);
+    BeeEnter(&bee1, &game->grid, RIGHT, frame);
+    BeeEnter(&bee2, &game->grid, LEFT, frame);
 
     if (game->canDraw) {
         drawExplosion(game->renderer, frame);
