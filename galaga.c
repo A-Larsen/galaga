@@ -160,15 +160,21 @@ enemyToFormation(FPoint *point, uint64_t frame, FPoint source,
 {
 
     SDL_Point a;
-    SDL_Point b = {
-        .x = source.x,
-        .y = source.y
-    };
 
     getGridPosition(formation, frame, &a, destination.x, destination.y);
-    interpolate(&point->x, point->y, source.x, b, a);
     
-    point->y += (point->y > a.y) ? -0.01f : 0.01f;
+    if (point->y > a.y) {
+        SDL_Point b = {
+            .x = source.x,
+            .y = source.y
+        };
+        interpolate(&point->x, point->y, source.x, b, a);
+        point->y -= 0.01f;
+        return;
+    }
+
+    point->y = a.y;
+    point->x = a.x;
 }
 
 void
@@ -388,7 +394,7 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
 
         SDL_RenderDrawLine(game->renderer, SCREEN_WIDTH_PX / 2, 0,
                            SCREEN_WIDTH_PX / 2, SCREEN_HEIGHT_PX);
-        drawFormationGrid(game->renderer, frame, formation);
+        /* drawFormationGrid(game->renderer, frame, formation); */
     }
 
     return UPDATE_MAIN;
