@@ -62,6 +62,14 @@ typedef struct _FRect {
     bool init;
 } FRect;
 
+typedef struct _Bee {
+    FRect position;
+    bool entering;
+    SDL_Point format_pos;
+    FRect source;
+    bool toFormationUpdate;
+} Bee;
+
 typedef uint8_t (*Update_callback)(Game *game, uint64_t frame, SDL_KeyCode key,
                                    bool keydown);
 
@@ -75,6 +83,16 @@ static bool formation[FORMATION_SIZE]; // 10 x 5
 void interpolate(float *x, int y, int s, SDL_Point p1, SDL_Point p2) {
     if ((p2.y - p1.y) == 0) return;
     *x = s + (float)((p2.x - p1.x) * (y - p1.y)) / (float)(p2.y - p1.y);
+}
+
+void
+BeeInit(Bee *bee) {
+    bee->position.x = 0;
+    bee->position.y = 0;
+    bee->position.w = ENEMY_SIZE_PX;
+    bee->position.h = ENEMY_SIZE_PX;
+    bee->position.radians = 0;
+    bee->position.init = true;
 }
 
 void
@@ -358,31 +376,35 @@ static uint8_t
 updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
 {
     static bool init = true;
+    static Bee bee1;
+    static Bee bee2;
 
     if (init) {
         srand(time(NULL));
         init = false;
+        BeeInit(&bee1);
+        BeeInit(&bee2);
     }
 
-    static FRect bee1_pos = {.x = 0, .y = 0, .w = ENEMY_SIZE_PX,
-                            .h = ENEMY_SIZE_PX, .radians = 0, .init = true};
+    /* static FRect bee1_pos = {.x = 0, .y = 0, .w = ENEMY_SIZE_PX, */
+    /*                         .h = ENEMY_SIZE_PX, .radians = 0, .init = true}; */
 
-    static FRect bee2_pos = {.x = 0, .y = 0, .w = ENEMY_SIZE_PX,
-                            .h = ENEMY_SIZE_PX, .radians = 0, .init = true};
+    /* static FRect bee2_pos = {.x = 0, .y = 0, .w = ENEMY_SIZE_PX, */
+    /*                         .h = ENEMY_SIZE_PX, .radians = 0, .init = true}; */
 
     static SDL_Point fighter_pos = {
         .x = 10,
         .y = SCREEN_HEIGHT_PX - FIGHTER_HEIGHT_PX - 10
     };
 
-    beeEnter(RIGHT, frame, &bee1_pos);
-    beeEnter(LEFT, frame, &bee2_pos);
+    beeEnter(RIGHT, frame, &bee1.position);
+    beeEnter(LEFT, frame, &bee2.position);
 
     if (game->canDraw) {
         drawExplosion(game->renderer, frame);
         drawFighter(game->renderer, fighter_pos);
-        drawBee(game->renderer, bee1_pos);
-        drawBee(game->renderer, bee2_pos);
+        drawBee(game->renderer, bee1.position);
+        drawBee(game->renderer, bee2.position);
         SDL_RenderDrawLine(game->renderer, SCREEN_WIDTH_PX / 2, 0,
                            SCREEN_WIDTH_PX / 2, SCREEN_HEIGHT_PX);
         drawFormationGrid(game->renderer, frame, formation);
