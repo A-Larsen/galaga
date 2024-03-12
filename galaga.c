@@ -168,7 +168,9 @@ enemyToFormation(FPoint *point, uint64_t frame, FPoint source,
             .x = source.x,
             .y = source.y
         };
+
         interpolate(&point->x, point->y, source.x, b, a);
+
         point->y -= 0.01f;
         return;
     }
@@ -394,7 +396,7 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
 
         SDL_RenderDrawLine(game->renderer, SCREEN_WIDTH_PX / 2, 0,
                            SCREEN_WIDTH_PX / 2, SCREEN_HEIGHT_PX);
-        /* drawFormationGrid(game->renderer, frame, formation); */
+        drawFormationGrid(game->renderer, frame, formation);
     }
 
     return UPDATE_MAIN;
