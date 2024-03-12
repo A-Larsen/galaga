@@ -87,8 +87,6 @@ void
 BeeInit(Bee *bee) {
     bee->position.x = 0;
     bee->position.y = 0;
-    /* bee->size.w = ENEMY_SIZE_PX; */
-    /* bee->size.h = ENEMY_SIZE_PX; */
     bee->position.radians = 0;
     bee->position.init = true;
     bee->entering = true;
