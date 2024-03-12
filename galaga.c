@@ -62,9 +62,8 @@ typedef struct _FPoint {
 typedef struct _Bee {
     FPoint position;
     bool entering;
-    SDL_Point format_pos;
+    SDL_Point formation;
     FPoint source;
-    bool toFormationUpdate;
     bool pickedPosition;
 } Bee;
 
@@ -91,9 +90,8 @@ BeeInit(Bee *bee) {
     bee->position.init = true;
     bee->entering = true;
     bee->pickedPosition = false;
-    memset(&bee->format_pos, 0, sizeof(SDL_Point));
+    memset(&bee->formation, 0, sizeof(SDL_Point));
     memset(&bee->source, 0, sizeof(FPoint));
-    bee->toFormationUpdate = false;
 }
 
 void
@@ -156,7 +154,7 @@ drawFormationGrid(SDL_Renderer *renderer, uint64_t frame, bool *formation)
     }
 }
 
-bool
+void
 enemyToFormation(FPoint *point, uint64_t frame, FPoint source,
                  SDL_Point destination)
 {
@@ -165,7 +163,9 @@ enemyToFormation(FPoint *point, uint64_t frame, FPoint source,
     getGridPosition(formation, frame, &a, destination.x, destination.y);
 
     if (point->y <= a.y) {
-        return false;
+        point->x = a.x;
+        point->y = a.y;
+        return;
     }
 
     SDL_Point b = {
@@ -176,8 +176,6 @@ enemyToFormation(FPoint *point, uint64_t frame, FPoint source,
     interpolate(&point->x, point->y, source.x, b, a);
     
     point->y -= .01f;
-
-    return true;
 }
 
 void
@@ -354,16 +352,14 @@ BeeEnter(Bee *bee, uint8_t enter, uint64_t frame) {
     } else if (!bee->pickedPosition) {
         SDL_Point p;
         uint8_t position = pickFormationPosition(ENEMY_BEE);
-        bee->format_pos.x = position % FORMATION_WIDTH;
-        bee->format_pos.y = floor((float)position / (float)FORMATION_WIDTH);
+        bee->formation.x = position % FORMATION_WIDTH;
+        bee->formation.y = floor((float)position / (float)FORMATION_WIDTH);
         printf("position: %d\n", position);
-        printf("x: %d, y: %d\n", bee->format_pos.x, bee->format_pos.y);
+        printf("x: %d, y: %d\n", bee->formation.x, bee->formation.y);
         memcpy(&bee->source, &bee->position, sizeof(FPoint));
         bee->pickedPosition = true;
-        bee->toFormationUpdate = true;
-    } else if (bee->toFormationUpdate){
-        bee->toFormationUpdate = enemyToFormation(&bee->position, frame,
-                                             bee->source, bee->format_pos);
+    } else{
+        enemyToFormation(&bee->position, frame, bee->source, bee->formation);
     }
 }
 
