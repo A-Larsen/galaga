@@ -378,10 +378,11 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
         .y = SCREEN_HEIGHT_PX - FIGHTER_HEIGHT_PX - 10
     };
 
-    if (b1IsEntering) {
-        b1IsEntering = enemyEntrance(BOTTOM, RIGHT, frame, &bee1_pos);
-    }
+    /* if (b1IsEntering) { */
+    /*     b1IsEntering = enemyEntrance(BOTTOM, RIGHT, frame, &bee1_pos); */
+    /* } */
 
+    beeEnter(RIGHT, frame, &bee1_pos);
     beeEnter(LEFT, frame, &bee2_pos);
 
     if (game->canDraw) {
