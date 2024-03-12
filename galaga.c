@@ -328,6 +328,32 @@ pickFormationPosition(uint8_t type)
     return 0;
 }
 
+void
+beeEnter(uint8_t enter, uint64_t frame, FRect *pos) {
+    static bool entering = true;
+    static bool pickedPosition = false;
+    static SDL_Point format_pos = {0};
+    static FRect source;
+    static bool toFormationUpdate = false;
+
+    if (entering) {
+        entering = enemyEntrance(BOTTOM, enter, frame, pos);
+    } else if (!pickedPosition) {
+        SDL_Point p;
+        uint8_t position = pickFormationPosition(ENEMY_BEE);
+        format_pos.x = position % FORMATION_WIDTH;
+        format_pos.y = floor((float)position / (float)FORMATION_WIDTH);
+        printf("position: %d\n", position);
+        printf("x: %d, y: %d\n", format_pos.x, format_pos.y);
+        memcpy(&source, pos, sizeof(FRect));
+        pickedPosition = true;
+        toFormationUpdate = true;
+    } else if (toFormationUpdate){
+        toFormationUpdate = enemyToFormation(pos, frame, source,
+                                             format_pos);
+    }
+}
+
 static uint8_t
 updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
 {
@@ -356,25 +382,7 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
         b1IsEntering = enemyEntrance(BOTTOM, RIGHT, frame, &bee1_pos);
     }
 
-    static SDL_Point format_pos = {0};
-    static FRect source;
-    static bool toFormationUpdate = false;
-    if (b2IsEntering) {
-        b2IsEntering = enemyEntrance(BOTTOM, LEFT, frame, &bee2_pos);
-    } else if (!pickedPosition) {
-        SDL_Point p;
-        uint8_t position = pickFormationPosition(ENEMY_BEE);
-        format_pos.x = position % FORMATION_WIDTH;
-        format_pos.y = floor((float)position / (float)FORMATION_WIDTH);
-        printf("position: %d\n", position);
-        printf("x: %d, y: %d\n", format_pos.x, format_pos.y);
-        memcpy(&source, &bee2_pos, sizeof(FRect));
-        pickedPosition = true;
-        toFormationUpdate = true;
-    } else if (toFormationUpdate){
-        toFormationUpdate = enemyToFormation(&bee2_pos, frame, source,
-                                             format_pos);
-    }
+    beeEnter(LEFT, frame, &bee2_pos);
 
     if (game->canDraw) {
         drawExplosion(game->renderer, frame);
