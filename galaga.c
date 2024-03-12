@@ -178,7 +178,6 @@ drawFighter(SDL_Renderer *renderer, SDL_Point point)
 void
 drawBee(SDL_Renderer *renderer, FRect point)
 {
-
     SDL_Rect rect = {
         .x = point.x,
         .y = point.y,
@@ -210,7 +209,6 @@ drawNoiseCircle(SDL_Renderer *renderer, SDL_Point center,
         };
 
         SDL_RenderFillRect(renderer, &rect);
-
     }
 }
 
@@ -325,8 +323,6 @@ pickFormationPosition(uint8_t type)
     switch(type) {
         case ENEMY_BEE: {
             return r * ((FORMATION_WIDTH * 2) - 1) + (FORMATION_WIDTH * 3);
-            /* point->x = r * ((FORMATION_WIDTH * 2) - 1); */
-            /* point->y = (FORMATION_WIDTH * 3); */
         }
     }
     return 0;
@@ -360,7 +356,6 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
         b1IsEntering = enemyEntrance(BOTTOM, RIGHT, frame, &bee1_pos);
     }
 
-    /* SDL_Point source = {0}; */
     static SDL_Point format_pos = {0};
     static FRect source;
     static bool toFormationUpdate = false;
@@ -380,7 +375,6 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
         toFormationUpdate = enemyToFormation(&bee2_pos, frame, source,
                                              format_pos);
     }
-
 
     if (game->canDraw) {
         drawExplosion(game->renderer, frame);
