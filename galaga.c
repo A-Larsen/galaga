@@ -357,9 +357,6 @@ beeEnter(uint8_t enter, uint64_t frame, FRect *pos) {
 static uint8_t
 updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
 {
-    static bool b1IsEntering = true;
-    static bool b2IsEntering = true;
-    static bool pickedPosition = false;
     static bool init = true;
 
     if (init) {
@@ -377,10 +374,6 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
         .x = 10,
         .y = SCREEN_HEIGHT_PX - FIGHTER_HEIGHT_PX - 10
     };
-
-    /* if (b1IsEntering) { */
-    /*     b1IsEntering = enemyEntrance(BOTTOM, RIGHT, frame, &bee1_pos); */
-    /* } */
 
     beeEnter(RIGHT, frame, &bee1_pos);
     beeEnter(LEFT, frame, &bee2_pos);
