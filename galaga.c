@@ -42,15 +42,6 @@ enum {ENEMY_BEE, ENEMY_BUTTERFLY, ENEMY_BOSS};
 
 enum {UPDATE_MAIN};
 
-typedef struct _Game {
-    uint8_t level;
-    uint64_t score;
-    SDL_Renderer *renderer;
-    SDL_Window *window;
-    bool quit;
-    bool canDraw;
-} Game;
-
 typedef struct _FPoint {
     float x;
     float y;
@@ -66,6 +57,21 @@ typedef struct _Bee {
     FPoint source;
     bool pickedPosition;
 } Bee;
+
+typedef struct _Grid {
+    uint8_t space;
+    SDL_Point start;
+} Grid;
+
+typedef struct _Game {
+    uint8_t level;
+    uint64_t score;
+    SDL_Renderer *renderer;
+    SDL_Window *window;
+    bool quit;
+    bool canDraw;
+    Grid grid;
+} Game;
 
 typedef uint8_t (*Update_callback)(Game *game, uint64_t frame, SDL_KeyCode key,
                                    bool keydown);
@@ -112,36 +118,40 @@ setColor(SDL_Renderer *renderer, uint8_t color)
 }
 
 void
-getGridPosition(bool *formation, uint64_t frame, SDL_Point *point, uint8_t x,
-                uint8_t y)
+updateGridPosition(Grid *grid, uint64_t frame)
 {
-    static uint8_t space = 50;
     static float i = 0;
-    static SDL_Point start = {0};
     uint64_t update_rate = 30000;
 
-    space = 50 + sin(((frame % update_rate) / (float)update_rate) * TAU) * 4;
+    grid->space = 50 + sin(((frame % update_rate) / (float)update_rate) * TAU) * 4;
 
-    float width = ((float)space * (float)FORMATION_WIDTH);
-    uint8_t height = ((ENEMY_SIZE_PX + space) * FORMATION_HEIGHT);
+    float width = ((float)grid->space * (float)FORMATION_WIDTH);
+    uint8_t height = ((ENEMY_SIZE_PX + grid->space) * FORMATION_HEIGHT);
 
-    start.x = space + ((space - ENEMY_SIZE_PX) / 2.0f) +
-              ((float)SCREEN_WIDTH_PX / 2.0f) - (width / 2.0f) -space;
+    grid->start.x = grid->space + ((grid->space - ENEMY_SIZE_PX) / 2.0f) +
+              ((float)SCREEN_WIDTH_PX / 2.0f) - (width / 2.0f) -grid->space;
 
-    start.y = 10;
-
-    point->x = start.x + x * space;
-    point->y = start.y + y * space;
+    grid->start.y = 10;
 }
 
 void
-drawFormationGrid(SDL_Renderer *renderer, uint64_t frame, bool *formation)
+getGridPosition(SDL_Point *point, Grid grid,  uint8_t x,
+                uint8_t y)
+{
+    point->x = grid.start.x + x * grid.space;
+    point->y = grid.start.y + y * grid.space;
+}
+
+void
+drawFormationGrid(SDL_Renderer *renderer, Grid grid, uint64_t frame, bool *formation)
 {
 
     for (uint8_t y = 0; y < FORMATION_HEIGHT; ++y) {
         for (uint8_t x = 0; x < FORMATION_WIDTH; ++x) {
             SDL_Point point;
-            getGridPosition(formation, frame, &point, x, y);
+
+            getGridPosition(&point, grid, x, y);
+
             SDL_Rect rect = {
                 .x = point.x,
                 .y = point.y,
@@ -155,13 +165,13 @@ drawFormationGrid(SDL_Renderer *renderer, uint64_t frame, bool *formation)
 }
 
 void
-enemyToFormation(FPoint *point, uint64_t frame, FPoint source,
+enemyToFormation(FPoint *point, Grid grid, uint64_t frame, FPoint source,
                  SDL_Point destination)
 {
 
     SDL_Point a;
 
-    getGridPosition(formation, frame, &a, destination.x, destination.y);
+    getGridPosition(&a, grid, destination.x, destination.y);
     
     if (point->y > a.y) {
         SDL_Point b = {
@@ -347,7 +357,7 @@ pickFormationPosition(uint8_t type)
 }
 
 void
-BeeEnter(Bee *bee, uint8_t enter, uint64_t frame) {
+BeeEnter(Bee *bee, Grid grid, uint8_t enter, uint64_t frame) {
     if (bee->entering) {
         bee->entering = enemyEntrance(BOTTOM, enter, frame, &bee->position);
     } else if (!bee->pickedPosition) {
@@ -360,7 +370,8 @@ BeeEnter(Bee *bee, uint8_t enter, uint64_t frame) {
         memcpy(&bee->source, &bee->position, sizeof(FPoint));
         bee->pickedPosition = true;
     } else{
-        enemyToFormation(&bee->position, frame, bee->source, bee->formation);
+        enemyToFormation(&bee->position, grid, frame, bee->source,
+                         bee->formation);
     }
 }
 
@@ -378,14 +389,16 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
         BeeInit(&bee2);
     }
 
+    updateGridPosition(&game->grid, frame);
+
     static SDL_Point fighter_pos = {
         .x = 10,
         .y = SCREEN_HEIGHT_PX - FIGHTER_HEIGHT_PX - 10
     };
 
     // make sure left and right enemy do not choose the same spot
-    BeeEnter(&bee1, RIGHT, frame);
-    BeeEnter(&bee2, LEFT, frame);
+    BeeEnter(&bee1, game->grid, RIGHT, frame);
+    BeeEnter(&bee2, game->grid, LEFT, frame);
 
     if (game->canDraw) {
         drawExplosion(game->renderer, frame);
@@ -396,7 +409,7 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
 
         SDL_RenderDrawLine(game->renderer, SCREEN_WIDTH_PX / 2, 0,
                            SCREEN_WIDTH_PX / 2, SCREEN_HEIGHT_PX);
-        drawFormationGrid(game->renderer, frame, formation);
+        drawFormationGrid(game->renderer, game->grid, frame, formation);
     }
 
     return UPDATE_MAIN;
