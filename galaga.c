@@ -74,7 +74,7 @@ static bool formation[FORMATION_SIZE]; // 10 x 5
 
 void interpolate(float *x, int y, int s, SDL_Point p1, SDL_Point p2) {
     if ((p2.y - p1.y) == 0) return;
-    *x = s + (p2.x- p1.x) * (y - p1.y) / (p2.y - p1.y);
+    *x = s + (float)((p2.x - p1.x) * (y - p1.y)) / (float)(p2.y - p1.y);
 }
 
 void
