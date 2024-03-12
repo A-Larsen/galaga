@@ -76,7 +76,7 @@ typedef struct _Game {
 typedef uint8_t (*Update_callback)(Game *game, uint64_t frame, SDL_KeyCode key,
                                    bool keydown);
 
-static bool formation[FORMATION_SIZE]; // 10 x 5
+/* static bool formation[FORMATION_SIZE]; // 10 x 5 */
 // row 1  (0-9)    boss
 // row 2  (10-19)  butterfly
 // row 3  (20-29)  butterfly
@@ -143,7 +143,7 @@ getGridPosition(SDL_Point *point, Grid grid,  uint8_t x,
 }
 
 void
-drawFormationGrid(SDL_Renderer *renderer, Grid grid, uint64_t frame, bool *formation)
+drawFormationGrid(SDL_Renderer *renderer, Grid grid, uint64_t frame)
 {
 
     for (uint8_t y = 0; y < FORMATION_HEIGHT; ++y) {
@@ -409,7 +409,7 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
 
         SDL_RenderDrawLine(game->renderer, SCREEN_WIDTH_PX / 2, 0,
                            SCREEN_WIDTH_PX / 2, SCREEN_HEIGHT_PX);
-        drawFormationGrid(game->renderer, game->grid, frame, formation);
+        drawFormationGrid(game->renderer, game->grid, frame);
     }
 
     return UPDATE_MAIN;
