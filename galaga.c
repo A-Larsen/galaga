@@ -68,6 +68,7 @@ typedef struct _Bee {
     SDL_Point format_pos;
     FRect source;
     bool toFormationUpdate;
+    bool pickedPosition;
 } Bee;
 
 typedef uint8_t (*Update_callback)(Game *game, uint64_t frame, SDL_KeyCode key,
@@ -93,6 +94,11 @@ BeeInit(Bee *bee) {
     bee->position.h = ENEMY_SIZE_PX;
     bee->position.radians = 0;
     bee->position.init = true;
+    bee->entering = true;
+    bee->pickedPosition = false;
+    memset(&bee->format_pos, 0, sizeof(SDL_Point));
+    memset(&bee->source, 0, sizeof(FRect));
+    bee->toFormationUpdate = false;
 }
 
 void
@@ -347,28 +353,28 @@ pickFormationPosition(uint8_t type)
 }
 
 void
-beeEnter(uint8_t enter, uint64_t frame, FRect *pos) {
-    static bool entering = true;
-    static bool pickedPosition = false;
-    static SDL_Point format_pos = {0};
-    static FRect source;
-    static bool toFormationUpdate = false;
+BeeEnter(Bee *bee, uint8_t enter, uint64_t frame) {
+    /* bool entering = true; */
+    /* bool pickedPosition = false; */
+    /* SDL_Point format_pos = {0}; */
+    /* FRect source; */
+    /* bool toFormationUpdate = false; */
 
-    if (entering) {
-        entering = enemyEntrance(BOTTOM, enter, frame, pos);
-    } else if (!pickedPosition) {
+    if (bee->entering) {
+        bee->entering = enemyEntrance(BOTTOM, enter, frame, &bee->position);
+    } else if (!bee->pickedPosition) {
         SDL_Point p;
         uint8_t position = pickFormationPosition(ENEMY_BEE);
-        format_pos.x = position % FORMATION_WIDTH;
-        format_pos.y = floor((float)position / (float)FORMATION_WIDTH);
+        bee->format_pos.x = position % FORMATION_WIDTH;
+        bee->format_pos.y = floor((float)position / (float)FORMATION_WIDTH);
         printf("position: %d\n", position);
-        printf("x: %d, y: %d\n", format_pos.x, format_pos.y);
-        memcpy(&source, pos, sizeof(FRect));
-        pickedPosition = true;
-        toFormationUpdate = true;
-    } else if (toFormationUpdate){
-        toFormationUpdate = enemyToFormation(pos, frame, source,
-                                             format_pos);
+        printf("x: %d, y: %d\n", bee->format_pos.x, bee->format_pos.y);
+        memcpy(&bee->source, &bee->position, sizeof(FRect));
+        bee->pickedPosition = true;
+        bee->toFormationUpdate = true;
+    } else if (bee->toFormationUpdate){
+        bee->toFormationUpdate = enemyToFormation(&bee->position, frame,
+                                             bee->source, bee->format_pos);
     }
 }
 
@@ -386,19 +392,13 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
         BeeInit(&bee2);
     }
 
-    /* static FRect bee1_pos = {.x = 0, .y = 0, .w = ENEMY_SIZE_PX, */
-    /*                         .h = ENEMY_SIZE_PX, .radians = 0, .init = true}; */
-
-    /* static FRect bee2_pos = {.x = 0, .y = 0, .w = ENEMY_SIZE_PX, */
-    /*                         .h = ENEMY_SIZE_PX, .radians = 0, .init = true}; */
-
     static SDL_Point fighter_pos = {
         .x = 10,
         .y = SCREEN_HEIGHT_PX - FIGHTER_HEIGHT_PX - 10
     };
 
-    beeEnter(RIGHT, frame, &bee1.position);
-    beeEnter(LEFT, frame, &bee2.position);
+    BeeEnter(&bee1, RIGHT, frame);
+    BeeEnter(&bee2, LEFT, frame);
 
     if (game->canDraw) {
         drawExplosion(game->renderer, frame);
