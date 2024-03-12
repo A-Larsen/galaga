@@ -95,7 +95,8 @@ setColor(SDL_Renderer *renderer, uint8_t color)
 }
 
 void
-getGridPosition(bool *formation, uint64_t frame, SDL_Point *point, uint8_t x, uint8_t y)
+getGridPosition(bool *formation, uint64_t frame, SDL_Point *point, uint8_t x,
+                uint8_t y)
 {
     static uint8_t space = 50;
     static float i = 0;
@@ -376,7 +377,8 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
         pickedPosition = true;
         toFormationUpdate = true;
     } else if (toFormationUpdate){
-        toFormationUpdate = enemyToFormation(&bee2_pos, frame, source, format_pos);
+        toFormationUpdate = enemyToFormation(&bee2_pos, frame, source,
+                                             format_pos);
     }
 
 
