@@ -160,22 +160,15 @@ enemyToFormation(FPoint *point, uint64_t frame, FPoint source,
 {
 
     SDL_Point a;
-    getGridPosition(formation, frame, &a, destination.x, destination.y);
-
-    if (point->y <= a.y) {
-        point->x = a.x;
-        point->y = a.y;
-        return;
-    }
-
     SDL_Point b = {
         .x = source.x,
         .y = source.y
     };
 
+    getGridPosition(formation, frame, &a, destination.x, destination.y);
     interpolate(&point->x, point->y, source.x, b, a);
     
-    point->y -= .01f;
+    point->y += (point->y > a.y) ? -0.01f : 0.01f;
 }
 
 void
