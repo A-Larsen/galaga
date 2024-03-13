@@ -99,9 +99,10 @@ setColor(SDL_Renderer *renderer, uint8_t color)
 void
 updateGridPosition(Grid *grid, uint64_t frame)
 {
-    uint64_t update_rate = 30000;
+    uint64_t update_rate = 450;
 
-    grid->space = 50 + sin(((frame % update_rate) / (float)update_rate) * TAU) * 4;
+    grid->space = 50 + sin(((frame % update_rate) /
+                           (float)update_rate) * TAU) * 4;
 
     float width = ((float)grid->space * (float)FORMATION_WIDTH);
     uint8_t height = ((ENEMY_SIZE_PX + grid->space) * FORMATION_HEIGHT);
@@ -158,7 +159,7 @@ enemyToFormation(FPoint *point, Grid grid, uint64_t frame, FPoint source,
 
         interpolate(&point->x, point->y, source.x, b, a);
 
-        point->y -= 0.01f;
+        point->y -= 1;
 
         if (point->y < a.y) {
             *enteredFormation = true;
@@ -238,7 +239,7 @@ drawExplosion(SDL_Renderer *renderer, uint64_t frame)
         drawNoiseCircle(renderer, center, 3, j, 4);
     }
 
-    i += .1f;
+    i += .9f;
     return true;
 }
 
@@ -255,7 +256,6 @@ enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FPoint *rect)
 {
     const int padding = 50;
 
-    if (!(frame % 30 == 0)) return true;
     if (rect->init) {
 
         switch(p1) {
@@ -393,15 +393,13 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
     FPoint *position1 = BeeEnter(0, &game->grid, RIGHT, frame);
     FPoint *position2 = BeeEnter(1, &game->grid, LEFT, frame);
 
-    if (game->canDraw) {
-        drawExplosion(game->renderer, frame);
-        drawFighter(game->renderer, fighter_pos);
-        drawEnemy(game->renderer, *position1);
-        drawEnemy(game->renderer, *position2);
-        SDL_RenderDrawLine(game->renderer, SCREEN_WIDTH_PX / 2, 0,
-                           SCREEN_WIDTH_PX / 2, SCREEN_HEIGHT_PX);
-        drawFormationGrid(game->renderer, game->grid, frame);
-    }
+    drawExplosion(game->renderer, frame);
+    drawFighter(game->renderer, fighter_pos);
+    drawEnemy(game->renderer, *position1);
+    drawEnemy(game->renderer, *position2);
+    SDL_RenderDrawLine(game->renderer, SCREEN_WIDTH_PX / 2, 0,
+                       SCREEN_WIDTH_PX / 2, SCREEN_HEIGHT_PX);
+    drawFormationGrid(game->renderer, game->grid, frame);
 
     return UPDATE_MAIN;
 }
@@ -432,13 +430,13 @@ Game_Init(Game *game)
 }
 
 void
-Game_Update(Game *game, const uint32_t lps, const uint32_t fps)
+Game_Update(Game *game, const uint16_t lps, const uint16_t fps)
 {
     uint64_t frame = 0;
     bool keydown = false;
     uint8_t update_id = 0;
     Update_callback update;
-    float mspd = (1.0f / (float)lps) * 1000.0f;
+    float lsp_mspd = (1.0f / (float)lps) * 1000.0f;
 
     SDL_Rect background_rect = {
         .x = 0,
@@ -449,19 +447,16 @@ Game_Update(Game *game, const uint32_t lps, const uint32_t fps)
 
     while (!game->quit) {
         uint32_t start = SDL_GetTicks();
-        game->canDraw = frame % (lps / fps) == 0;
 
         switch (update_id) {
             case UPDATE_MAIN: update = updateMain; break;
         }
 
-        if (game->canDraw) {
-            setColor(game->renderer, COLOR_GREY);
-            SDL_RenderClear(game->renderer);
-            setColor(game->renderer, COLOR_BLACK);
-            SDL_RenderFillRect(game->renderer, &background_rect);
+        setColor(game->renderer, COLOR_GREY);
+        SDL_RenderClear(game->renderer);
+        setColor(game->renderer, COLOR_BLACK);
+        SDL_RenderFillRect(game->renderer, &background_rect);
 
-        }
 
         SDL_Event event;
         SDL_KeyCode key = 0;
@@ -487,14 +482,15 @@ Game_Update(Game *game, const uint32_t lps, const uint32_t fps)
         uint32_t end = SDL_GetTicks();
         uint32_t elapsed_time = end - start;
 
-        if (elapsed_time < mspd) {
-            elapsed_time = mspd - elapsed_time;
+        if (elapsed_time < lsp_mspd) {
+            elapsed_time = lsp_mspd - elapsed_time;
             SDL_Delay(elapsed_time);
         } 
 
-
-        if (game->canDraw)
+        if (frame % (lps / fps) == 0) {
             SDL_RenderPresent(game->renderer);
+        }
+
 
         frame++;
     }
@@ -514,6 +510,6 @@ int main(void)
 {
     Game game;
     Game_Init(&game);
-    Game_Update(&game, 1200, 60);
+    Game_Update(&game, 220, 60);
     Game_Quit(&game);
 }
