@@ -260,7 +260,8 @@ pickFormationPosition(uint8_t type, bool *formation)
 
             while (true) {
                 float r = (float)rand() / (float)RAND_MAX;
-                i = r * ((FORMATION_WIDTH * 2) - 1) + (FORMATION_WIDTH * 3);
+                /* i = r * ((FORMATION_WIDTH * 2) - 1) + (FORMATION_WIDTH * 3); */
+                i = r * ((FORMATION_WIDTH * 2)) + (FORMATION_WIDTH * 3);
                 if (!formation[i]) break;
             }
 
