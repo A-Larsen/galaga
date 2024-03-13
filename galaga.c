@@ -53,7 +53,6 @@ typedef struct _FPoint {
 typedef struct _Bee {
     FPoint position;
     SDL_Point formation;
-    bool entering;
     bool pickedPosition;
     bool enteredFormation;
 } Bee;
@@ -93,7 +92,6 @@ BeeInit(Bee *bee) {
     bee->position.y = 0;
     bee->position.radians = 0;
     bee->position.init = true;
-    bee->entering = true;
     bee->pickedPosition = false;
     bee->enteredFormation = false;
     memset(&bee->formation, 0, sizeof(SDL_Point));
@@ -360,10 +358,11 @@ pickFormationPosition(uint8_t type)
 
 void
 BeeEnter(Bee *bee, uint8_t id, Grid *grid, uint8_t enter, uint64_t frame) {
-    static FPoint source[FORMATION_WIDTH];
+    static FPoint source[FORMATION_WIDTH] = {0};
+    static bool entering[FORMATION_WIDTH] = {[0 ... FORMATION_WIDTH - 1] = 1};
 
-    if (bee->entering) {
-        bee->entering = enemyEntrance(BOTTOM, enter, frame, &bee->position);
+    if (entering[id]) {
+        entering[id] = enemyEntrance(BOTTOM, enter, frame, &bee->position);
     } else if (!bee->pickedPosition) {
         SDL_Point p;
         uint8_t position = pickFormationPosition(ENEMY_BEE);
