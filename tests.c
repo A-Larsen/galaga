@@ -3,16 +3,13 @@
 int main(int argc, char **argv)
 {
 
-    if (argc > 2) {
+    if (argc > 1) {
         if (strcmp(argv[1], "pickFormationPosition") == 0) {
             Grid grid;
             srand(time(NULL));
 
-            uint16_t size = atoll(argv[2]);
-            if (size > 20 || size <= 0) {
-                printf("invalide test size\n");
-                return 1;
-            }
+            uint16_t size = 20;
+
             uint8_t i = 0;
             uint8_t *picked = malloc(sizeof(uint8_t) * size);
             bool pass = true;
