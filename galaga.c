@@ -372,8 +372,18 @@ EnemyEnter(uint8_t id, uint8_t type, Grid *grid, uint8_t enter,
                                         &infop->position);
     } else if (!infop->pickedPosition) {
         SDL_Point p;
-        uint8_t i = pickFormationPosition(type);
+        uint8_t i = 0;
+
         grid->formation[i] = 1;
+
+        while(true) {
+            i = pickFormationPosition(type);
+            for (uint8_t j = 0; j < FORMATION_SIZE; ++j) {
+                if (grid->formation[j] == i) continue;
+            }
+            break;
+        }
+
         infop->formation.x = i % FORMATION_WIDTH;
         infop->formation.y = floor((float)i / (float)FORMATION_WIDTH);
         printf("i: %d\n", i);
