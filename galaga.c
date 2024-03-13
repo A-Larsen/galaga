@@ -412,7 +412,7 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
         drawEnemy(game->renderer, bee2.position);
         SDL_RenderDrawLine(game->renderer, SCREEN_WIDTH_PX / 2, 0,
                            SCREEN_WIDTH_PX / 2, SCREEN_HEIGHT_PX);
-        /* drawFormationGrid(game->renderer, game->grid, frame); */
+        drawFormationGrid(game->renderer, game->grid, frame);
     }
 
     return UPDATE_MAIN;
