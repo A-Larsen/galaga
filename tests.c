@@ -41,6 +41,9 @@ int main(int argc, char **argv)
             }
 
             free(picked);
+        } else {
+            fprintf(stderr, "not an argument");
+            return 1 ;
         }
 
     }
