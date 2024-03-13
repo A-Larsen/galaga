@@ -177,7 +177,6 @@ enemyToFormation(FPosition *point, Grid *grid, uint64_t frame, FPosition source,
         }
         return;
     }
-    
 
     point->y = a.y;
     point->x = a.x;
@@ -473,7 +472,6 @@ GameUpdate(Game *game, const uint16_t lps, const uint16_t fps)
         SDL_RenderClear(game->renderer);
         setColor(game->renderer, COLOR_BLACK);
         SDL_RenderFillRect(game->renderer, &background_rect);
-
 
         SDL_Event event;
         SDL_KeyCode key = 0;
