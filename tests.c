@@ -15,15 +15,24 @@ int main(int argc, char **argv)
 
             while(i < size) {
                 printf("%d: ", i);
-                picked[i] = pickFormationPosition(ENEMY_BEE, grid.formation);
-                printf("%d\n", picked[i]);
+                int a = -1;
+                a = pickFormationPosition(ENEMY_BEE, grid.formation);
 
-                for (uint16_t j = 0; j < size; ++j) {
-                    if ((j != i) && (picked[i] == picked[j])) {
-                        pass = false;
-                        break;
-                    }
+                printf("%d\n", a);
+
+                if (picked[a] == 1) {
+                    pass = false;
+                    break;
                 }
+
+                picked[a] = 1;
+
+                /* for (uint16_t j = 0; j < size; ++j) { */
+                /*     if ((j != i) && (picked[i] == picked[j])) { */
+                /*         pass = false; */
+                /*         break; */
+                /*     } */
+                /* } */
                 i++;
             }
 
