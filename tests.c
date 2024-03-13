@@ -8,14 +8,35 @@ int main(int argc, char **argv)
             Grid grid;
             srand(time(NULL));
 
+            uint16_t size = atoll(argv[2]);
             uint8_t i = 0;
-            while(i < atoi(argv[2])) {
-                uint8_t a = pickFormationPosition(ENEMY_BEE, grid.formation);
-                printf("%d\n", a);
+            uint8_t *picked = malloc(sizeof(uint8_t) * size);
+            bool pass = true;
+
+            while(i < size) {
+                printf("%d: ", i);
+                picked[i] = pickFormationPosition(ENEMY_BEE, grid.formation);
+                printf("%d\n", picked[i]);
+
+                for (uint16_t j = 0; j < size; ++j) {
+                    if ((j != i) && (picked[i] == picked[j])) {
+                        pass = false;
+                        break;
+                    }
+                }
                 i++;
             }
-            printf("SUCCESS\n");
-            return 0;
+
+            if (pass) {
+                printf("SUCCESS\n");
+                return 0;
+
+            } else {
+                printf("FAIL\n");
+                return 1;
+            }
+
+            free(picked);
         }
 
     }
