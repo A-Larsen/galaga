@@ -384,9 +384,9 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
 
     if (init) {
         srand(time(NULL));
-        init = false;
         BeeInit(&bee1);
         BeeInit(&bee2);
+        init = false;
     }
 
     updateGridPosition(&game->grid, frame);
