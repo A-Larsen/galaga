@@ -48,7 +48,7 @@ typedef struct _FPoint {
     float radians;
     float start_radians;
     bool init;
-} FPoint;
+} FPosition;
 
 typedef struct _Grid {
     uint8_t space;
@@ -75,8 +75,8 @@ typedef struct _EnemyInfo {
     bool pickedPosition;
     bool enteredFormation;
     bool entering;
-    FPoint source;
-    FPoint position;
+    FPosition source;
+    FPosition position;
     SDL_Point formation;
 } EnemyInfo;
 
@@ -153,7 +153,7 @@ drawFormationGrid(SDL_Renderer *renderer, Grid grid, uint64_t frame)
 }
 
 void
-enemyToFormation(FPoint *point, Grid grid, uint64_t frame, FPoint source,
+enemyToFormation(FPosition *point, Grid grid, uint64_t frame, FPosition source,
                  bool *enteredFormation, SDL_Point destination)
 {
     SDL_Point a;
@@ -196,7 +196,7 @@ drawFighter(SDL_Renderer *renderer, SDL_Point point)
 }
 
 void
-drawEnemy(SDL_Renderer *renderer, FPoint point)
+drawEnemy(SDL_Renderer *renderer, FPosition point)
 {
     SDL_Rect rect = {
         .x = point.x,
@@ -254,14 +254,14 @@ drawExplosion(SDL_Renderer *renderer, uint64_t frame)
 
 
 void
-enemyMove(FPoint *point, bool invert_x, bool invert_y, float radians)
+enemyMove(FPosition *point, bool invert_x, bool invert_y, float radians)
 {
     point->x += sinf(radians) * (invert_x ? -1 : 1);
     point->y += cosf(radians) * (invert_y ? -1 : 1);
 }
 
 bool
-enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FPoint *rect)
+enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FPosition *rect)
 {
     const int padding = 50;
 
@@ -295,7 +295,6 @@ enemyEntrance(uint8_t p1, uint8_t p2, uint64_t frame, FPoint *rect)
 
     switch(p1) {
         case BOTTOM: {
-
             enemyMove(rect, p2 == LEFT ? 0 : 1, 0, rect->radians);
 
             float r2 = 0;
@@ -347,8 +346,9 @@ pickFormationPosition(uint8_t type)
     return 0;
 }
 
-FPoint *
-EnemyEnter(uint8_t id, uint8_t type, Grid *grid, uint8_t enter, uint64_t frame) {
+FPosition *
+EnemyEnter(uint8_t id, uint8_t type, Grid *grid, uint8_t enter,
+           uint64_t frame) {
 
     static EnemyInfo info[FORMATION_WIDTH] = {[0 ... FORMATION_WIDTH - 1] = {
         .pickedPosition = false,
@@ -367,7 +367,8 @@ EnemyEnter(uint8_t id, uint8_t type, Grid *grid, uint8_t enter, uint64_t frame) 
     EnemyInfo *infop = &info[id];
 
     if (infop->entering) {
-        infop->entering = enemyEntrance(BOTTOM, enter, frame, &infop->position);
+        infop->entering = enemyEntrance(BOTTOM, enter, frame,
+                                        &infop->position);
     } else if (!infop->pickedPosition) {
         SDL_Point p;
         uint8_t i = pickFormationPosition(type);
@@ -376,7 +377,7 @@ EnemyEnter(uint8_t id, uint8_t type, Grid *grid, uint8_t enter, uint64_t frame) 
         infop->formation.y = floor((float)i / (float)FORMATION_WIDTH);
         printf("i: %d\n", i);
         printf("x: %d, y: %d\n", infop->formation.x, infop->formation.y);
-        memcpy(&infop->source, &infop->position, sizeof(FPoint));
+        memcpy(&infop->source, &infop->position, sizeof(FPosition));
         infop->pickedPosition = true;
     } else{
         enemyToFormation(&infop->position, *grid, frame, infop->source,
@@ -403,8 +404,8 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
     };
 
     // make sure left and right enemy do not choose the same spot
-    FPoint *position1 = EnemyEnter(0, ENEMY_BEE, &game->grid, RIGHT, frame);
-    FPoint *position2 = EnemyEnter(1, ENEMY_BEE, &game->grid, LEFT, frame);
+    FPosition *position1 = EnemyEnter(0, ENEMY_BEE, &game->grid, RIGHT, frame);
+    FPosition *position2 = EnemyEnter(1, ENEMY_BEE, &game->grid, LEFT, frame);
 
     drawExplosion(game->renderer, frame);
     drawFighter(game->renderer, fighter_pos);
@@ -495,14 +496,9 @@ Game_Update(Game *game, const uint16_t lps, const uint16_t fps)
         uint32_t end = SDL_GetTicks();
         uint32_t elapsed_time = end - start;
 
-        if (elapsed_time < lsp_mspd) {
-            elapsed_time = lsp_mspd - elapsed_time;
-            SDL_Delay(elapsed_time);
-        } 
+        if (elapsed_time < lsp_mspd) SDL_Delay(lsp_mspd - elapsed_time);
 
-        if (frame % (lps / fps) == 0) {
-            SDL_RenderPresent(game->renderer);
-        }
+        if (frame % (lps / fps) == 0) SDL_RenderPresent(game->renderer);
 
 
         frame++;
