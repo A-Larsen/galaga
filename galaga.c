@@ -56,6 +56,7 @@ typedef struct _Bee {
     SDL_Point formation;
     FPoint source;
     bool pickedPosition;
+    bool enteredFormation;
 } Bee;
 
 typedef struct _Grid {
@@ -95,6 +96,7 @@ BeeInit(Bee *bee) {
     bee->position.init = true;
     bee->entering = true;
     bee->pickedPosition = false;
+    bee->enteredFormation = false;
     memset(&bee->formation, 0, sizeof(SDL_Point));
     memset(&bee->source, 0, sizeof(FPoint));
 }
@@ -165,14 +167,13 @@ drawFormationGrid(SDL_Renderer *renderer, Grid grid, uint64_t frame)
 
 void
 enemyToFormation(FPoint *point, Grid grid, uint64_t frame, FPoint source,
-                 SDL_Point destination)
+                 bool *enteredFormation, SDL_Point destination)
 {
-
     SDL_Point a;
 
     getGridPosition(&a, grid, destination.x, destination.y);
-    
-    if (point->y > a.y) {
+
+    if (!(*enteredFormation)) {
         SDL_Point b = {
             .x = source.x,
             .y = source.y
@@ -181,8 +182,13 @@ enemyToFormation(FPoint *point, Grid grid, uint64_t frame, FPoint source,
         interpolate(&point->x, point->y, source.x, b, a);
 
         point->y -= 0.01f;
+
+        if (point->y < a.y) {
+            *enteredFormation = true;
+        }
         return;
     }
+    
 
     point->y = a.y;
     point->x = a.x;
@@ -371,7 +377,7 @@ BeeEnter(Bee *bee, Grid *grid, uint8_t enter, uint64_t frame) {
         bee->pickedPosition = true;
     } else{
         enemyToFormation(&bee->position, *grid, frame, bee->source,
-                         bee->formation);
+                         &bee->enteredFormation, bee->formation);
     }
 }
 
@@ -403,10 +409,8 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
     if (game->canDraw) {
         drawExplosion(game->renderer, frame);
         drawFighter(game->renderer, fighter_pos);
-
         drawEnemy(game->renderer, bee1.position);
         drawEnemy(game->renderer, bee2.position);
-
         SDL_RenderDrawLine(game->renderer, SCREEN_WIDTH_PX / 2, 0,
                            SCREEN_WIDTH_PX / 2, SCREEN_HEIGHT_PX);
         drawFormationGrid(game->renderer, game->grid, frame);
