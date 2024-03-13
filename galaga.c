@@ -52,9 +52,8 @@ typedef struct _FPoint {
 
 typedef struct _Bee {
     FPoint position;
-    bool entering;
     SDL_Point formation;
-    FPoint source;
+    bool entering;
     bool pickedPosition;
     bool enteredFormation;
 } Bee;
@@ -98,7 +97,6 @@ BeeInit(Bee *bee) {
     bee->pickedPosition = false;
     bee->enteredFormation = false;
     memset(&bee->formation, 0, sizeof(SDL_Point));
-    memset(&bee->source, 0, sizeof(FPoint));
 }
 
 void
@@ -361,7 +359,9 @@ pickFormationPosition(uint8_t type)
 }
 
 void
-BeeEnter(Bee *bee, Grid *grid, uint8_t enter, uint64_t frame) {
+BeeEnter(Bee *bee, uint8_t id, Grid *grid, uint8_t enter, uint64_t frame) {
+    static FPoint source[FORMATION_WIDTH];
+
     if (bee->entering) {
         bee->entering = enemyEntrance(BOTTOM, enter, frame, &bee->position);
     } else if (!bee->pickedPosition) {
@@ -372,10 +372,10 @@ BeeEnter(Bee *bee, Grid *grid, uint8_t enter, uint64_t frame) {
         bee->formation.y = floor((float)position / (float)FORMATION_WIDTH);
         printf("position: %d\n", position);
         printf("x: %d, y: %d\n", bee->formation.x, bee->formation.y);
-        memcpy(&bee->source, &bee->position, sizeof(FPoint));
+        memcpy(&source[id], &bee->position, sizeof(FPoint));
         bee->pickedPosition = true;
     } else{
-        enemyToFormation(&bee->position, *grid, frame, bee->source,
+        enemyToFormation(&bee->position, *grid, frame, source[id],
                          &bee->enteredFormation, bee->formation);
     }
 }
@@ -402,8 +402,8 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
     };
 
     // make sure left and right enemy do not choose the same spot
-    BeeEnter(&bee1, &game->grid, RIGHT, frame);
-    BeeEnter(&bee2, &game->grid, LEFT, frame);
+    BeeEnter(&bee1, 1, &game->grid, RIGHT, frame);
+    BeeEnter(&bee2, 2, &game->grid, LEFT, frame);
 
     if (game->canDraw) {
         drawExplosion(game->renderer, frame);
