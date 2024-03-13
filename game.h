@@ -36,14 +36,10 @@
         exit(1); \
     } \
 
-enum {COLOR_RED, COLOR_GREEN, COLOR_BLUE, COLOR_ORANGE, COLOR_GREY,
-      COLOR_WHITE, COLOR_BLACK, COLOR_SIZE};
-
-enum {TOP, BOTTOM, LEFT, RIGHT, CENTER_LEFT, CENTER_RIGHT};
-
-enum {ENEMY_BEE, ENEMY_BUTTERFLY, ENEMY_BOSS};
-
-enum {UPDATE_MAIN};
+enum /* color */ {COLOR_RED, COLOR_GREEN, COLOR_BLUE, COLOR_ORANGE, COLOR_GREY, COLOR_WHITE, COLOR_BLACK, COLOR_SIZE};
+enum /* cardinal */ {TOP, BOTTOM, LEFT, RIGHT, CENTER_LEFT, CENTER_RIGHT};
+enum /*enemy types */ {ENEMY_BEE, ENEMY_BUTTERFLY, ENEMY_BOSS};
+enum /* update callback ids */ {UPDATE_MAIN};
 
 typedef struct _FPoint {
     bool init;
@@ -83,8 +79,7 @@ typedef struct _EnemyInfo {
     uint8_t pickedPosition;
 } EnemyInfo;
 
-typedef uint8_t (*Update_callback)(Game *game, uint64_t frame, SDL_KeyCode key,
-                                   bool keydown);
+typedef uint8_t (*Update_callback)(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown);
 
 void interpolate(float *x, int y, int s, SDL_Point p1, SDL_Point p2);
 void setColor(SDL_Renderer *renderer, uint8_t color);
