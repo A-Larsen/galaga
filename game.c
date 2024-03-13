@@ -258,11 +258,8 @@ pickFormationPosition(uint8_t type, bool *formation)
     switch(type) {
         case ENEMY_BEE: {
             int i = r * ((FORMATION_WIDTH * 2) - 1) + (FORMATION_WIDTH * 3);
-            for (uint8_t j = 0; j < FORMATION_SIZE; ++j) {
-                if (formation[j] == 1 && j == 1)
-                    pickFormationPosition(type, formation);
-                /* if (formation[j] == i) pickFormationPosition(type, formation); */
-            }
+            if (formation[i] == 1)
+                pickFormationPosition(type, formation);
             formation[i] = 1;
             return i;
         }
