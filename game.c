@@ -257,6 +257,7 @@ pickFormationPosition(uint8_t type, bool *formation)
     switch(type) {
         case ENEMY_BEE: {
             int i = -1;
+
             while (true) {
                 float r = (float)rand() / (float)RAND_MAX;
                 i = r * ((FORMATION_WIDTH * 2) - 1) + (FORMATION_WIDTH * 3);

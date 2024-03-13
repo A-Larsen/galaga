@@ -9,6 +9,10 @@ int main(int argc, char **argv)
             srand(time(NULL));
 
             uint16_t size = atoll(argv[2]);
+            if (size > 20 || size <= 0) {
+                printf("invalide test size\n");
+                return 1;
+            }
             uint8_t i = 0;
             uint8_t *picked = malloc(sizeof(uint8_t) * size);
             bool pass = true;
