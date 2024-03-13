@@ -53,8 +53,6 @@ typedef struct _FPoint {
 typedef struct _Bee {
     /* FPoint position; */
     SDL_Point formation;
-    bool pickedPosition;
-    bool enteredFormation;
 } Bee;
 
 typedef struct _Grid {
@@ -88,8 +86,6 @@ void interpolate(float *x, int y, int s, SDL_Point p1, SDL_Point p2) {
 
 void
 BeeInit(Bee *bee) {
-    bee->pickedPosition = false;
-    bee->enteredFormation = false;
     memset(&bee->formation, 0, sizeof(SDL_Point));
 }
 
@@ -355,6 +351,8 @@ pickFormationPosition(uint8_t type)
 FPoint *
 BeeEnter(Bee *bee, uint8_t id, Grid *grid, uint8_t enter, uint64_t frame) {
     static FPoint source[FORMATION_WIDTH] = {0};
+    static bool pickedPosition[FORMATION_WIDTH] = {0};
+    static bool enteredFormation[FORMATION_WIDTH] = {0};
 
     static bool entering[FORMATION_WIDTH] = {[0 ... FORMATION_WIDTH - 1] = 1};
 
@@ -365,9 +363,10 @@ BeeEnter(Bee *bee, uint8_t id, Grid *grid, uint8_t enter, uint64_t frame) {
         .init = true
     }};
 
+
     if (entering[id]) {
         entering[id] = enemyEntrance(BOTTOM, enter, frame, &position[id]);
-    } else if (!bee->pickedPosition) {
+    } else if (!pickedPosition[id]) {
         SDL_Point p;
         uint8_t i = pickFormationPosition(ENEMY_BEE);
         grid->formation[i] = 1;
@@ -376,10 +375,10 @@ BeeEnter(Bee *bee, uint8_t id, Grid *grid, uint8_t enter, uint64_t frame) {
         printf("i: %d\n", i);
         printf("x: %d, y: %d\n", bee->formation.x, bee->formation.y);
         memcpy(&source[id], &position[id], sizeof(FPoint));
-        bee->pickedPosition = true;
+        pickedPosition[id] = true;
     } else{
         enemyToFormation(&position[id], *grid, frame, source[id],
-                         &bee->enteredFormation, bee->formation);
+                         &enteredFormation[id], bee->formation);
     }
     return &position[id];
 }
