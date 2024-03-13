@@ -71,6 +71,15 @@ typedef struct _Game {
     Grid grid;
 } Game;
 
+typedef struct _EnemyInfo {
+    bool pickedPosition;
+    bool enteredFormation;
+    bool entering;
+    FPoint source;
+    FPoint position;
+    SDL_Point formation;
+} EnemyInfo;
+
 typedef uint8_t (*Update_callback)(Game *game, uint64_t frame, SDL_KeyCode key,
                                    bool keydown);
 
@@ -339,37 +348,41 @@ pickFormationPosition(uint8_t type)
 }
 
 FPoint *
-BeeEnter(uint8_t id, Grid *grid, uint8_t enter, uint64_t frame) {
-    static FPoint source[FORMATION_WIDTH] = {0};
-    static bool pickedPosition[FORMATION_WIDTH] = {0};
-    static bool enteredFormation[FORMATION_WIDTH] = {0};
-    static SDL_Point formation[FORMATION_WIDTH] = {0};
-    static bool entering[FORMATION_WIDTH] = {[0 ... FORMATION_WIDTH - 1] = 1};
-    static FPoint position[FORMATION_WIDTH] = {[0 ... FORMATION_WIDTH - 1] = {
-        .x = 0,
-        .y = 0,
-        .radians = 0,
-        .init = true
+EnemyEnter(uint8_t id, uint8_t type, Grid *grid, uint8_t enter, uint64_t frame) {
+
+    static EnemyInfo info[FORMATION_WIDTH] = {[0 ... FORMATION_WIDTH - 1] = {
+        .pickedPosition = false,
+        .enteredFormation = false,
+        .entering = true,
+        .source = {0},
+        .position = {
+            .x = 0,
+            .y = 0,
+            .radians = 0,
+            .init = true
+        },
+        .formation = {0}
     }};
 
+    EnemyInfo *infop = &info[id];
 
-    if (entering[id]) {
-        entering[id] = enemyEntrance(BOTTOM, enter, frame, &position[id]);
-    } else if (!pickedPosition[id]) {
+    if (infop->entering) {
+        infop->entering = enemyEntrance(BOTTOM, enter, frame, &infop->position);
+    } else if (!infop->pickedPosition) {
         SDL_Point p;
-        uint8_t i = pickFormationPosition(ENEMY_BEE);
+        uint8_t i = pickFormationPosition(type);
         grid->formation[i] = 1;
-        formation[id].x = i % FORMATION_WIDTH;
-        formation[id].y = floor((float)i / (float)FORMATION_WIDTH);
+        infop->formation.x = i % FORMATION_WIDTH;
+        infop->formation.y = floor((float)i / (float)FORMATION_WIDTH);
         printf("i: %d\n", i);
-        printf("x: %d, y: %d\n", formation[id].x, formation[id].y);
-        memcpy(&source[id], &position[id], sizeof(FPoint));
-        pickedPosition[id] = true;
+        printf("x: %d, y: %d\n", infop->formation.x, infop->formation.y);
+        memcpy(&infop->source, &infop->position, sizeof(FPoint));
+        infop->pickedPosition = true;
     } else{
-        enemyToFormation(&position[id], *grid, frame, source[id],
-                         &enteredFormation[id], formation[id]);
+        enemyToFormation(&infop->position, *grid, frame, infop->source,
+                         &infop->enteredFormation, infop->formation);
     }
-    return &position[id];
+    return &infop->position;
 }
 
 static uint8_t
@@ -390,8 +403,8 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
     };
 
     // make sure left and right enemy do not choose the same spot
-    FPoint *position1 = BeeEnter(0, &game->grid, RIGHT, frame);
-    FPoint *position2 = BeeEnter(1, &game->grid, LEFT, frame);
+    FPoint *position1 = EnemyEnter(0, ENEMY_BEE, &game->grid, RIGHT, frame);
+    FPoint *position2 = EnemyEnter(1, ENEMY_BEE, &game->grid, LEFT, frame);
 
     drawExplosion(game->renderer, frame);
     drawFighter(game->renderer, fighter_pos);
