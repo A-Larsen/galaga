@@ -121,7 +121,6 @@ setColor(SDL_Renderer *renderer, uint8_t color)
 void
 updateGridPosition(Grid *grid, uint64_t frame)
 {
-    static float i = 0;
     uint64_t update_rate = 30000;
 
     grid->space = 50 + sin(((frame % update_rate) / (float)update_rate) * TAU) * 4;
