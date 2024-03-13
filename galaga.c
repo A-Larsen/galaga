@@ -43,17 +43,17 @@ enum {ENEMY_BEE, ENEMY_BUTTERFLY, ENEMY_BOSS};
 enum {UPDATE_MAIN};
 
 typedef struct _FPoint {
+    bool init;
     float x;
     float y;
     float radians;
     float start_radians;
-    bool init;
 } FPosition;
 
 typedef struct _Grid {
-    uint8_t space;
-    SDL_Point start;
     bool formation[FORMATION_SIZE]; // 10 x 5
+    SDL_Point start;
+    uint8_t space;
     // row 1  (0-9)    boss
     // row 2  (10-19)  butterfly
     // row 3  (20-29)  butterfly
@@ -62,22 +62,22 @@ typedef struct _Grid {
 } Grid;
 
 typedef struct _Game {
-    uint8_t level;
-    uint64_t score;
-    SDL_Renderer *renderer;
-    SDL_Window *window;
     bool quit;
     bool canDraw;
+    uint8_t level;
+    uint64_t score;
     Grid grid;
+    SDL_Renderer *renderer;
+    SDL_Window *window;
 } Game;
 
 typedef struct _EnemyInfo {
-    uint8_t pickedPosition;
     bool enteredFormation;
     bool entering;
+    SDL_Point formation;
     FPosition source;
     FPosition position;
-    SDL_Point formation;
+    uint8_t pickedPosition;
 } EnemyInfo;
 
 typedef uint8_t (*Update_callback)(Game *game, uint64_t frame, SDL_KeyCode key,
