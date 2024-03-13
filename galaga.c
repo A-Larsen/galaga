@@ -72,7 +72,7 @@ typedef struct _Game {
 } Game;
 
 typedef struct _EnemyInfo {
-    bool pickedPosition;
+    uint8_t pickedPosition;
     bool enteredFormation;
     bool entering;
     FPosition source;
@@ -153,12 +153,13 @@ drawFormationGrid(SDL_Renderer *renderer, Grid grid, uint64_t frame)
 }
 
 void
-enemyToFormation(FPosition *point, Grid grid, uint64_t frame, FPosition source,
-                 bool *enteredFormation, SDL_Point destination)
+enemyToFormation(FPosition *point, Grid *grid, uint64_t frame, FPosition source,
+                 bool *enteredFormation, uint8_t pickedPosition,
+                 SDL_Point destination)
 {
     SDL_Point a;
 
-    getGridPosition(&a, grid, destination.x, destination.y);
+    getGridPosition(&a, *grid, destination.x, destination.y);
 
     if (!(*enteredFormation)) {
         SDL_Point b = {
@@ -172,6 +173,7 @@ enemyToFormation(FPosition *point, Grid grid, uint64_t frame, FPosition source,
 
         if (point->y < a.y) {
             *enteredFormation = true;
+            grid->formation[pickedPosition] = 1;
         }
         return;
     }
@@ -351,7 +353,7 @@ EnemyEnter(uint8_t id, uint8_t type, Grid *grid, uint8_t enter,
            uint64_t frame) {
 
     static EnemyInfo info[FORMATION_WIDTH] = {[0 ... FORMATION_WIDTH - 1] = {
-        .pickedPosition = false,
+        .pickedPosition = 0,
         .enteredFormation = false,
         .entering = true,
         .source = {0},
@@ -375,11 +377,14 @@ EnemyEnter(uint8_t id, uint8_t type, Grid *grid, uint8_t enter,
         grid->formation[i] = 1;
         infop->formation.x = i % FORMATION_WIDTH;
         infop->formation.y = floor((float)i / (float)FORMATION_WIDTH);
+        printf("i: %d\n", i);
+        printf("x: %d, y: %d\n", infop->formation.x, infop->formation.y);
         memcpy(&infop->source, &infop->position, sizeof(FPosition));
-        infop->pickedPosition = true;
+        infop->pickedPosition = i;
     } else{
-        enemyToFormation(&infop->position, *grid, frame, infop->source,
-                         &infop->enteredFormation, infop->formation);
+        enemyToFormation(&infop->position, grid, frame, infop->source,
+                         &infop->enteredFormation, infop->pickedPosition,
+                         infop->formation);
     }
     return &infop->position;
 }
