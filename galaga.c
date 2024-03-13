@@ -80,7 +80,8 @@ typedef struct _Game {
     Grid grid;
 } Game;
 
-typedef uint8_t (*Update_callback)(Game *game, uint64_t frame, SDL_KeyCode key,
+typedef uint8_t (*Update_callback)(Game *game, uint64_t frame, 
+                                   uint32_t lps, SDL_KeyCode key,
                                    bool keydown);
 
 void interpolate(float *x, int y, int s, SDL_Point p1, SDL_Point p2) {
@@ -123,7 +124,8 @@ updateGridPosition(Grid *grid, uint64_t frame)
 {
     uint64_t update_rate = 30000;
 
-    grid->space = 50 + sin(((frame % update_rate) / (float)update_rate) * TAU) * 8;
+    grid->space = 50 + sin(((frame % update_rate) /
+                           (float)update_rate) * TAU) * 8;
 
     float width = ((float)grid->space * (float)FORMATION_WIDTH);
     uint8_t height = ((ENEMY_SIZE_PX + grid->space) * FORMATION_HEIGHT);
@@ -381,7 +383,8 @@ BeeEnter(Bee *bee, Grid *grid, uint8_t enter, uint64_t frame) {
 }
 
 static uint8_t
-updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
+updateMain(Game *game, uint64_t frame, uint32_t lps, SDL_KeyCode key,
+           bool keydown)
 {
     static bool init = true;
     static Bee bee1;
@@ -450,10 +453,10 @@ Game_Update(Game *game, const uint32_t fps)
     bool keydown = false;
     uint8_t update_id = 0;
     Update_callback update;
-    uint32_t lps;
+    uint32_t lps = 0;
     float mspd = (1.0f / (float)lps) * 1000.0f;
     uint32_t frame_count = 0;
-    bool lps_found = false;
+    /* bool lps_found = false; */
 
     SDL_Rect background_rect = {
         .x = 0,
@@ -466,7 +469,7 @@ Game_Update(Game *game, const uint32_t fps)
 
     while (!game->quit) {
         uint32_t start = SDL_GetTicks();
-        if (lps_found) {
+        if (lps > 0) {
             game->canDraw = frame % (lps / fps) == 0;
         }
 
@@ -501,8 +504,8 @@ Game_Update(Game *game, const uint32_t fps)
             }
         }
 
-        if (lps_found) {
-            update_id = update(game, frame, key, keydown);
+        if (lps > 0) {
+            update_id = update(game, frame, lps, key, keydown);
         }
 
         uint32_t end = SDL_GetTicks();
@@ -512,7 +515,6 @@ Game_Update(Game *game, const uint32_t fps)
             lps = frame_count;
             frame_count = 0;
             lps_start = SDL_GetTicks();
-            lps_found = true;
         }
 
         if (elapsed_time < mspd) {
