@@ -375,8 +375,6 @@ EnemyEnter(uint8_t id, uint8_t type, Grid *grid, uint8_t enter,
         grid->formation[i] = 1;
         infop->formation.x = i % FORMATION_WIDTH;
         infop->formation.y = floor((float)i / (float)FORMATION_WIDTH);
-        printf("i: %d\n", i);
-        printf("x: %d, y: %d\n", infop->formation.x, infop->formation.y);
         memcpy(&infop->source, &infop->position, sizeof(FPosition));
         infop->pickedPosition = true;
     } else{
@@ -419,7 +417,7 @@ updateMain(Game *game, uint64_t frame, SDL_KeyCode key, bool keydown)
 }
 
 void
-Game_Init(Game *game)
+GameInit(Game *game)
 {
     memset(game, 0, sizeof(Game));
 
@@ -444,7 +442,7 @@ Game_Init(Game *game)
 }
 
 void
-Game_Update(Game *game, const uint16_t lps, const uint16_t fps)
+GameUpdate(Game *game, const uint16_t lps, const uint16_t fps)
 {
     uint64_t frame = 0;
     bool keydown = false;
@@ -500,13 +498,12 @@ Game_Update(Game *game, const uint16_t lps, const uint16_t fps)
 
         if (frame % (lps / fps) == 0) SDL_RenderPresent(game->renderer);
 
-
         frame++;
     }
 }
 
 void
-Game_Quit(Game *game)
+GameQuit(Game *game)
 {
     SDL_DestroyWindow(game->window);
     SDL_DestroyRenderer(game->renderer);
@@ -518,7 +515,7 @@ Game_Quit(Game *game)
 int main(void)
 {
     Game game;
-    Game_Init(&game);
-    Game_Update(&game, 220, 60);
-    Game_Quit(&game);
+    GameInit(&game);
+    GameUpdate(&game, 220, 60);
+    GameQuit(&game);
 }
