@@ -1,13 +1,13 @@
 #ifndef _GAME_H_
 #define _GAME_H_
 
-#include <stdio.h>
-#include <stdint.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_image.h>
-#include <assert.h>
+#include <stdio.h>
+#include <stdint.h>
 #include <stdbool.h>
+#include <assert.h>
 #include <time.h>
 
 #define TAU ((float)(M_PI * 2.0f))
