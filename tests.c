@@ -27,12 +27,6 @@ int main(int argc, char **argv)
 
                 picked[a] = 1;
 
-                /* for (uint16_t j = 0; j < size; ++j) { */
-                /*     if ((j != i) && (picked[i] == picked[j])) { */
-                /*         pass = false; */
-                /*         break; */
-                /*     } */
-                /* } */
                 i++;
             }
 
