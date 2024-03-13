@@ -50,11 +50,6 @@ typedef struct _FPoint {
     bool init;
 } FPoint;
 
-typedef struct _Bee {
-    /* FPoint position; */
-    /* SDL_Point formation; */
-} Bee;
-
 typedef struct _Grid {
     uint8_t space;
     SDL_Point start;
@@ -82,11 +77,6 @@ typedef uint8_t (*Update_callback)(Game *game, uint64_t frame, SDL_KeyCode key,
 void interpolate(float *x, int y, int s, SDL_Point p1, SDL_Point p2) {
     if ((p2.y - p1.y) == 0) return;
     *x = s + (float)((p2.x - p1.x) * (y - p1.y)) / (float)(p2.y - p1.y);
-}
-
-void
-BeeInit(Bee *bee) {
-    /* memset(&bee->formation, 0, sizeof(SDL_Point)); */
 }
 
 void
