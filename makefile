@@ -9,6 +9,6 @@ tests: game.c tests.c
 	gcc -g -o tests game.c tests.c $(LIBS)
 
 clean:
-	rm -rf $(PROG)
+	rm -rf $(PROG) tests
 
 .PHONY: clean
