@@ -1,3 +1,4 @@
 /galaga
 /tests
 /galaga.*
+!galaga.c
