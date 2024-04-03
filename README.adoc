@@ -1,0 +1,2 @@
+== Galaga
+Recreation of Galaga with SDL2 library in C
