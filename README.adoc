@@ -1,2 +1,16 @@
 == Galaga
 Recreation of Galaga with SDL2 library in C
+
+== Running tests
+
+[source, sh]
+----
+./test <test name>
+----
+
+example:
+
+[source, sh]
+----
+ ./tests "pickFormationPosition"
+----
